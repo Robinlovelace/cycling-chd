@@ -1,0 +1,12 @@
+Thoughts on methods
+
+Our paper should have two main analyses:
+
+1. A simple cross-sectional analysis of the cardiovascular (cv) mortality data (under 75 - so better for us to look at cycling to work than if all ages) from the PHE data set ~ is there an association between this and cycling rates in LAs. This would be done using just a linear regression model, with explanatory variables: % who cycle to work from 2011 Census, Deprivation (IMD), % Smoke, % Physically Active, % Obese (these last three are estimates but are needed), and possibly something about age profiles of LAs maybe (????). We may also want to explore interaction effects between some variables (we could look at all and see what we find, but really we need a good justification between for this - I think though cycling and deprivation makes sense). So to do this, we would need to sort out the data (should be as close to 2011 as possible for greater comparability), do some descriptive work on understand broad patterns in the data (mean % cycle to work). Run some correlations on our explanatory variables to look for multicollinearity. We may also wish to plot cv mortality against cycling to see if the relationship is linear (or even a more fancier GAM model - probably not needed). Then analyse in a regression model.
+
+2. Something using the cv mortality data at 2001 and 2011 and comparing changes over time of that against the cycling data from the Census for both periods. This could be done in two ways:
+  (a) A cross lag model in which we compare the values at each time period and see if the value of cycling at 2001 influences the cv mortality values at 2011, taking into account the cycling value at 2011
+  (b) A regression model analysing the change in value of cv mortality (2011 minus 2001) against change in cycling 
+They answer different questions I guess - the first one is more interested in the time lag effect, whereas the latter we can say if the growth of cycling saw declines in cv mortality (might be better). We would have to think about how we would control for the other covariates here as most are not available for both time periods.
+
+Let me know what you think. I don't think that we need to do anything complicated here, we just need to make a strong and simple message.
