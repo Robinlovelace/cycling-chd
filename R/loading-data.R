@@ -15,4 +15,11 @@ df <- read_excel("data/PublicHealthEngland-Data.xls", sheet = 3)
 # library(geojsonio) # need devtools and then install_github("ropensci/geojsonio")
 # geojson_write(input = las, file = "data/las.geojson")
 
-las <- readOGR(dsn = "data/las.geojson", layer = "OGRGeoJSON")
+# las <- readOGR(dsn = "data/las.geojson", layer = "OGRGeoJSON")
+# nrow(las)
+# plot(las) # wrong geometry
+
+# load correct las geometry
+# url <- "https://github.com/npct/pct-bigdata/raw/master/national/las-pcycle.geojson"
+# downloader::download(url, destfile = "data/las-pcycle.geojson")
+las <- readOGR(dsn = "data/las-pcycle.geojson", layer = "OGRGeoJSON")
