@@ -11,6 +11,6 @@ This is easy enough to do in R: "lm(y ~ X)" where y is cv mortality, and X is a 
   (b) A regression model analysing the change in value of cv mortality (2011 minus 2001) against change in cycling 
 They answer different questions I guess - the first one is more interested in the time lag effect, whereas the latter we can say if the growth of cycling saw declines in cv mortality (might be better). We would have to think about how we would control for the other covariates here as most are not available for both time periods.
 
-
-
-Let me know what you think. I don't think that we need to do anything complicated here, we just need to make a strong and simple message.
+The approach we take will depend on the question we want to answer. Here is how to do it:
+(a) For this, the first issue is the correlation between at (active transport) at 2001 and 2011 - if this is ok (<0.7) then regress as "lm(cv2011 ~ at2001 + 2011)" and compare both effects. Probably will be an issue though and maybe a SEM model might be better - no idea in R so lets leave for now and can learn later if required
+(b) Firstly we will need to calcuate change measures so "data$changeincv <- data$cv2011 - data$cv2001" and "data$changeinat <- data$at2011 - data$at2001" (at = active transport) then this could be regressed [lm(y ~ x)] with the other factors, either held as 2011 or their changes?
