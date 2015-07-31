@@ -23,8 +23,8 @@ head(las@data)
 las@data <- left_join(las@data, chd)
 head(las@data)
 
-tmap::qtm(las, fill = c("chd_rate", "clc"))
-plot(las$clc, las$chd_rate, xlim = c(0, 0.15), xlab = "% cycling",
+tmap::qtm(las, fill = c("chd_rate", "log_pcycle"))
+plot(las$log_pcycle, las$chd_rate, xlab = "Log of % cycling",
   ylab = "Cardio mortality rate")
 cor(las$clc * 100, las$chd_rate, use = "complete.obs")
 
