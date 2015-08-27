@@ -64,15 +64,25 @@ Recommendations/ Implications for policy makers
 
 References
 Andersen LB;  Wedderkopp N;  Kristensen P;  Moller NC;  Froberg K;  Cooper AR. Cycling to school and cardiovascular risk factors: a longitudinal study. Journal of Physical Activity & Health.  8(8):1025-33, 2011 Nov. 
+
 Boone-Heinonen J;  Jacobs DR Jr;  Sidney S;  Sternfeld B;  Lewis CE;  Gordon-Larsen P. A walk (or cycle) to the park: active transit to neighborhood amenities, the CARDIA study. American Journal of Preventive Medicine.  37(4):285-92, 2009 Oct. 
-Furie GL; Desai MM. Active transportation and cardiovascular disease risk factors in U.S. adults.  American Journal of Preventive Medicine.  43(6):621-8, 2012 Dec. 
-[Goldberg MJ;  Boutcher SH;  Boutcher YN. The effect of 4 weeks of aerobic exercise on vascular and baroreflex function of young men with a family history of hypertension. Journal of Human Hypertension.  26(11):644-9, 2012 Nov.] ]. [an RCT (n=30) demonstrated that 30 minutes of exercise three times per week over ten weeks in young male participants with a family history of hypertension resulted in a significant reduction in arterial stiffness which causes hypertension (measured by augmentation index) (
+
+Furie GL; Desai MM. Active transportation and cardiovascular disease risk factors in U.S. adults.  American Journal of Preventive Medicine.  43(6):621-8, 2012 Dec.
+
+[Goldberg MJ;  Boutcher SH;  Boutcher YN. The effect of 4 weeks of aerobic exercise on vascular and baroreflex function of young men with a family history of hypertension. Journal of Human Hypertension.  26(11):644-9, 2012 Nov.] ]. [an RCT (n=30) demonstrated that 30 minutes of exercise three times per week over ten weeks in young male participants with a family history of hypertension resulted in a significant reduction in arterial stiffness which causes hypertension (measured by augmentation index) 
+
 Heidenreich PA et al. Forecasting the Future of Cardiovascular Disease in the United States, A Policy Statement From the American Heart Association. Circulation, 2011; 123: 933-944
+
 Hoevenaar-Blom MP;  Wendel-Vos GC;  Spijkerman AM;  Kromhout D;  Verschuren WM. Cycling and sports, but not walking, are associated with 10-year cardiovascular disease incidence: the MORGEN Study. European Journal of Cardiovascular Prevention & Rehabilitation.  18(1):41-7, 2011 Feb. 
+
 Laverty AA;  Mindell JS;  Webb EA;  Millett C. Active travel to work and cardiovascular risk factors in the United Kingdom. American Journal of Preventive Medicine.  45(3):282-8, 2013 Sep. 
+
 Lu SR;  Su J;  Xiang QY;  Zhang FY;  Wu M. Active transport and health outcomes: findings from a population study in Jiangsu, China. Journal Of Environmental & Public Health.  2013:624194, 2013. 
+
 Matthews CE;  Jurj AL;  Shu XO;  Li HL;  Yang G;  Li Q;  Gao YT;  Zheng W. Influence of exercise, walking, cycling, and overall nonexercise physical activity on mortality in Chinese women. American Journal of Epidemiology.  165(12):1343-50, 2007 Jun 15. 
+
 Millett C;  Agrawal S;  Sullivan R;  Vaz M;  Kurpad A;  Bharathi AV;  Prabhakaran D;  Reddy KS;  Kinra S;  Smith GD;  Ebrahim S;  Indian Migration Study group. Associations between active travel to work and overweight, hypertension, and diabetes in India: a cross-sectional study. PLoS Medicine / Public Library of Science.  10(6):e1001459, 2013. 
+
 Morita N;  Okita K. Is gender a factor in the reduction of cardiovascular risks with exercise training?. Circulation Journal.  77(3):646-51, 2013. 
 Public Health England. Fingertips app, Available at: http://fingertips.phe.org.uk/profile/cardiovascular/data accessed 22nd July 2015. 
 Tarride JE et al. A review of the cost of cardiovascular disease. Can J Cardiol. 2009 Jun; 25(6): e195–e202. 
