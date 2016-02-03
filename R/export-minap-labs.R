@@ -7,12 +7,17 @@ names(df)
 labname <- get.label.name(df)
 labname <- labname[labname != ""]
 
-library(jsonlite)
-labout <- as.list(1:length(labname))
-for(i in 1:length(labname)){
-  labout[[i]] <- readstata13::get.label(df, label.name = labname[i])
-  labout[[i]] <- paste0(labout[[i]], " = ", names(readstata13::get.label(df, label.name = labname[i])))
-}
+x <- data.frame(shortname =names(readstata13::get.varlabel(df)),
+                longname = readstata13::get.varlabel(df))
+
+write.csv(x, "labnames.csv")
+
+# library(jsonlite)
+# labout <- as.list(1:length(labname))
+# for(i in 1:length(labname)){
+#   labout[[i]] <- readstata13::get.label(df, label.name = labname[i])
+#   labout[[i]] <- paste0(labout[[i]], " = ", names(readstata13::get.label(df, label.name = labname[i])))
+# }
 
 names(labout)
 labout <- setNames(labout, labname)
