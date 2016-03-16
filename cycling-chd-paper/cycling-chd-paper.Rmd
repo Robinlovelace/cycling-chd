@@ -2,21 +2,9 @@
 title:
   # Title must be 150 characters or less
   "Active travel and cardiovascular health: A UK-wide ecological study"
-author:
-  - Sarah Walpole
-  - Mark Green
-  - Robin Lovelace
-affiliation:
-  - id: '1'
-    city: London
-    country: UK
-  - id: '2' 
-    city: Liverpool
-    country: UK
-  - id: '3' 
-    city: Leeds
-    country: UK
-output: pdf_document
+output: 
+  pdf_document: 
+    number_sections: yes
 csl: bmj.csl
 bibliography: Transport-health.bib
 ---
@@ -50,36 +38,14 @@ bibliography: Transport-health.bib
 
 # Abstract {-}
 
-Goes here
+Active travel has been long established as a protective factor against cardiovascular heart disease (CHD).
 
 \newpage
 
-# Example headers and content {-}
-
-This section is designed to show off some of RMarkdown's functionality.
-
-## Subsection {-}
-You can use R chunks directly to plot graphs. See Figure 1.
-
-```{r, graph, echo=TRUE, message=FALSE, fig.cap='Figure caption'}
-require("ggplot2")
-x <- 0:100
-y <- 2 * (x + rnorm(length(x), sd = 3) + 3)
-ggplot(data = data.frame(x, y), 
-       aes(x = x, y = y)) + 
-  geom_point() + 
-  geom_smooth(method = "lm")
-```
-
-Cite fancy references using this notation [@Furie2012]:
-
-```{}
-[@Furie2012]
-```
 
 \newpage
 
-# Introduction {-}
+# Introduction 
 
 What is known:
 
@@ -97,7 +63,9 @@ What this study can add:
 through active transport may be associated with reduced burden of cardiovascular
 morbidity and mortality
 
-Aims 
+An overview of the field can be found in [@rojas-rueda_health_2016].
+
+### Aims 
 
 - To explore the relationship between cardiovascular disease and prevalence of
 active transport at population level in order to inform policy making
@@ -105,7 +73,7 @@ active transport at population level in order to inform policy making
 relationship, including socioeconomic status, smoking prevalence, (gender,
 ethnicity and urbanity)
 
-Objectives
+### Objectives
 
 - Obtain data on prevalence of active transport, average distance travelled per
 person using active transport, under 75 cardiovascular mortality rate,
@@ -122,6 +90,8 @@ and obesity
 transport/average distance travelled per person using public transport and
 population physical activity levels using the data on “percentage of physically
 active adults” from PHE
+
+The paper is structured as follows. Section [#method] ...
 
 # Background {-}
 
@@ -211,7 +181,7 @@ old children in USA at two time periods, six years apart suggests that the
 association between active transport and cardiovascular risk holds seen in
 adults is also present in children [@Andersen2011].
 
-# Method {-}
+# Method {-} 
 
 Data sources
 
