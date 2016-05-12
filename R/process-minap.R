@@ -7,7 +7,7 @@ library(plyr)
 library(data.table)
 
 # Set working directory
-setwd("M:/GitHub/cycling-chd") # Mark
+# setwd("M:/GitHub/cycling-chd") # Mark
 
 # Load data
 sample_data <- read.csv("./data/testdat.csv")
@@ -23,8 +23,8 @@ subset_data <- subset_data[subset_data$year>2009,]
 
 # Create age bands [may want to change these to 5 or 10 year age bands???]
 # Whatever way we choose, we will need to join on M/LSOA population level data to match this
-subset_data$age_band <- cut(subset_data[, "age"], c(-1, 15.5, 24.5, 34.5, 44.5, 54.5, 64.5, 74.5, 121), 
-                            labels=c("0-15","16-24","25-34","35-44","45-54","55-64","65-74","75+")) 
+subset_data$age_band <- cut(subset_data[, "age"], c(-1, 15.5, 24.5, 34.5, 44.5, 54.5, 64.5, 74.5, 121),
+                            labels=c("0-15","16-24","25-34","35-44","45-54","55-64","65-74","75+"))
 
 # Aggregate counts to M/LSOAs
 dt <- data.table(subset_data)
