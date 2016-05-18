@@ -10,16 +10,17 @@ library(data.table)
 # setwd("M:/GitHub/cycling-chd") # Mark
 
 # Load data
-sample_data <- read.csv("./data/testdat.csv")
+sample_data = read.csv("data/testdat.csv")
 
 # Subset data to variables required
 vars <- c("year", "age", "sex", "easting", "northing") # Will need to add more later
-subset_data<- sample_data[,vars]
+subset_data = sample_data[,vars]
 
 # Keep only years interested in [need to make a decision on this]
 subset_data <- subset_data[subset_data$year>2009,]
 
-## Robin - need to attach M/LSOA codes here ##
+## RL - need to attach M/LSOA codes here ##
+subset_data$MSOA = rep(letters, length.out = nrow(subset_data))
 
 # Create age bands [may want to change these to 5 or 10 year age bands???]
 # Whatever way we choose, we will need to join on M/LSOA population level data to match this
@@ -28,17 +29,17 @@ subset_data$age_band <- cut(subset_data[, "age"], c(-1, 15.5, 24.5, 34.5, 44.5, 
 
 # Aggregate counts to M/LSOAs
 dt <- data.table(subset_data)
-data <- dt[, list(admissions=.N), by = c("sex", "age_band", "M/LSOA")]
+data <- dt[, list(admissions=.N), by = c("sex", "age_band", "MSOA")]
 data <- as.data.frame(data)
 
-## Join on population data in same format here based on M/LSOA data (variable: data$population)
-
+## Join on population data in same format here based on M/LSOA data (RL)
+data$population = rnorm(n = nrow(data), mean = 8000, sd = 5000)
 
 ### Create expected counts ###
 
 
 # Aggregate counts by age and sex to calcuate the 'standard population'
-std_pop <- dt[, list(admissions=.N, population=sum(population)), by = c("sex", "age_band")]
+std_pop <- dt[, list(admissions=.N, population=sum(data$population)), by = c("sex", "age_band")]
 
 # Calculate age- and sex-specific rates
 std_pop <- as.data.frame(std_pop)
