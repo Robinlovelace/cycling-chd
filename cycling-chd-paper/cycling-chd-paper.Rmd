@@ -116,7 +116,7 @@ A retrospective cohort study used data from a national survey of UK residents
 overweight, obesity, hypertension and diabetes in different socio-demographic
 groups. This study included public transport, walking and cycling in the
 definition of active transport and used logistic regression methods. Across all
-groups, active transport was associated with a likelihood of being overweight
+groups, active transport was associated with a (YJN edit: missing word lower??)likelihood of being overweight
 (AOR 0.80 (0.54-0.88)) and walking was associated with a lower likelihood of
 having hypertension (AOR 0.83 (0.71-0.97)) [@Laverty2013a]. A
 retrospective cohort study of US 9933 adults taken from 2007-2008 and 2009-2010
@@ -181,6 +181,8 @@ old children in USA at two time periods, six years apart suggests that the
 association between active transport and cardiovascular risk holds seen in
 adults is also present in children [@Andersen2011].
 
+YJN Comment - I got lost in the detail in this section... perhaps needs simplifying? Or setting out subtitles
+
 # Method {-} 
 
 Data sources
@@ -189,13 +191,16 @@ Cycling data from the Transport survey for England or the UK Census
 Cardiovascular data from Public Health England (PHE) or Farr Institute data
 PHE data is by strategic clinical network and includes: 
 
-- CHD prevalence (QOF)
+YJN edits:
+QOF data is available by GP practice - The PHE dataset uses this data combined by Local Authority. Some issues here in terms of people who live in a different LA to where their GP is located. I would pick 3 of these outcomes for simplicity: CHD prevalence, CHD mortality, prevalence hypertension. The confounding variables look reasonable except we may want to try and build in something about air pollution? Also worth being clear what the unit of analysis is here? Different datasets may be available on different footprints...
+
+- CHD prevalence (QOF) (
 - CHD mortality in under 75s (age standardised)
-- (Heart failure, various parameters)
+- (Heart failure, various parameters) (YJN edit: not sure this is worth it)
 - obesity
-- prevalence low physical activity (?correlate this with cycling?)
+- prevalence low physical activity (?correlate this with cycling?) - YJN comment: This is likely to be strongly collinear so not sure I would recommend doing?!?
 - prevalence hypertension
-- percentage of people in most deprived quintile (20%?!)
+- percentage of people in most deprived quintile (20%?!) (YJN comment: My feeling is that IMD rank or score would be a better choice for confounding variable)
 
 Statistical analysis
 Programmes: R,
@@ -217,9 +222,13 @@ Implications
 Exploration of robustness
 
 - Methods
+This study has used an ecological study design and as such is subject to the ecological fallacy. The findings relate to geographical areas and cannot necessarily be applied to individuals. Efforts have been made to reduce the effect of confounding factors ..
+
 - data sources
 
 Generalisability and transferability of findings
+
+
 Recommendations/ Implications for policy makers
 
 - primary vs secondary prevention
