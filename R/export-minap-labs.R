@@ -10,7 +10,7 @@ labname <- labname[labname != ""]
 x <- data.frame(shortname =names(readstata13::get.varlabel(df)),
                 longname = readstata13::get.varlabel(df))
 
-write.csv(x, "labnames.csv")
+# write.csv(x, "labnames.csv")
 
 # library(jsonlite)
 # labout <- as.list(1:length(labname))
@@ -27,3 +27,11 @@ writeLines(x, "labnames.json")
 
 set.seed(54)
 write.csv(df[sample(x = nrow(df), size = 100),], "testdat.csv")
+
+labs = read.csv("labnames.csv")
+labs
+labs$shortname
+selection = which(labs$shortname == "ecg_place")
+selection
+labs[selection,]
+
