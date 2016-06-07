@@ -45,7 +45,7 @@ Active travel has been long established as a protective factor against cardiovas
 
 \newpage
 
-# Introduction 
+# THIS SECTION ISN'T PLANNED FOR INCLUSION AS PROSE - IT's FOR OUR INFO OR IF WE ARE DOING E.G. BMJ WHERE THIS IS MEANT TO BE BULLETS:
 
 What is known:
 
@@ -93,7 +93,7 @@ active adults” from PHE
 
 The paper is structured as follows. Section [#method] ...
 
-# Background {-}
+## Background {-}
 
 Studies from in middle income and high income countries, and in rural and urban
 settings have investigated the association between active travel and heart
@@ -181,7 +181,7 @@ old children in USA at two time periods, six years apart suggests that the
 association between active transport and cardiovascular risk holds seen in
 adults is also present in children [@Andersen2011].
 
-# Method {-} 
+## Methods {-} 
 
 Data sources
 
@@ -207,20 +207,23 @@ Results and Discussion can be combined.
 
 # Discussion {-}
 
-Findings
+##Findings
 
-Implications 
+##Implications 
 
 - correlation, not causation, mediating factors – individual and population level
 - individual vs societal risks/benefits
 
-Exploration of robustness
+##Exploration of robustness
 
 - Methods
+Limits: ecological study, only as accurate as the data, only one end point, 
+
 - data sources
 
 Generalisability and transferability of findings
-Recommendations/ Implications for policy makers
+
+##Recommendations/ Implications for policy makers
 
 - primary vs secondary prevention
 
