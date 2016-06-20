@@ -6,34 +6,30 @@
 library(plyr)
 library(data.table)
 
-# Set working directory
-# setwd("M:/GitHub/cycling-chd") # Mark
-
 # Load data
-sample_data = read.csv("data/testdat.csv")
+sample_data <- readRDS("data/minap-data.Rds")
 
 # Subset data to variables required
 vars <- c("year", "age", "sex", "easting", "northing") # Will need to add more later
-subset_data = sample_data[,vars]
+subset_data = sample_data[vars]
 
 # Keep only years interested in [need to make a decision on this]
 subset_data <- subset_data[subset_data$year>2009,]
 
 ## RL - need to attach M/LSOA codes here ##
-subset_data$MSOA = rep(letters, length.out = nrow(subset_data))
 
-# Create age bands [may want to change these to 5 or 10 year age bands???]
-# Whatever way we choose, we will need to join on M/LSOA population level data to match this
+
+# Create age bands
 subset_data$age_band <- cut(subset_data[, "age"], c(-1, 15.5, 24.5, 34.5, 44.5, 54.5, 64.5, 74.5, 121),
                             labels=c("0-15","16-24","25-34","35-44","45-54","55-64","65-74","75+"))
 
 # Aggregate counts to M/LSOAs
 dt <- data.table(subset_data)
-data <- dt[, list(admissions=.N), by = c("sex", "age_band", "MSOA")]
+data <- dt[, list(admissions=.N), by = c("sex", "age_band", "year", "msoa_code")]
 data <- as.data.frame(data)
 
 ## Join on population data in same format here based on M/LSOA data (RL)
-data$population = rnorm(n = nrow(data), mean = 8000, sd = 5000)
+
 
 ### Create expected counts ###
 
@@ -53,6 +49,6 @@ data2 <- join(data, std_pop, by = c("sex", "age_band"), type = "left", match = "
 # Calcuate expected rate
 data2$adm_expt <- data2$adm_rate * data2$population
 
-## What we want left is a file for M/LSOAs disaggregated by sex and age-bands with counts of
+## What we want left is a file for MSOAs disaggregated by sex and age-bands with counts of
 ## admissions and the expected count of admissions. We can later aggregate by sex (or for total
 ## persons) the counts but better to keep disaggregated for now
