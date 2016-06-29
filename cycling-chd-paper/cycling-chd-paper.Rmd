@@ -73,6 +73,10 @@ active transport at population level in order to inform policy making
 relationship, including socioeconomic status, smoking prevalence, (gender,
 ethnicity and urbanity)
 
+Is the scope just Coronary heart disease? Not cardiovascular disease? Stroke, etc may be interesting in the same vein and may be quite easy to do at the same time
+
+May need to take other confounding variables into account - diet?
+
 ### Objectives
 
 - Obtain data on prevalence of active transport, average distance travelled per
@@ -81,6 +85,9 @@ prevalence of hospital admission for acute coronary syndrome (ACS), median blood
 pressure, prevalence of high blood pressure, prevalence of diabetes, median BMI,
 prevalence of overweight or obesity, prevalence of  smoking and socioeconomic
 status at the unitary authority (UA) and district level in the UK
+Just noticed you have specified a footprint so ignore my comments on that
+
+
 - Correlate active travel to work (the explanatory variable) with cardiovascular
 disease measures (the outcome variable)
 - Explore the impact of  potential confounding or  mediating factors:
@@ -192,7 +199,9 @@ PHE data is by strategic clinical network and includes:
 - CHD prevalence (QOF)
 - CHD mortality in under 75s (age standardised)
 - (Heart failure, various parameters)
-- obesity
+- obesity 
+- Not certain about the obesity / overweight data set used by PHE - the best dataset for obesity is NCMP but that is children only... Not sure regarding the strength of the evidence in terms of overweight/obesity and CHD and whether you can just treat them together?
+
 - prevalence low physical activity (?correlate this with cycling?)
 - prevalence hypertension
 - percentage of people in most deprived quintile (20%?!)
