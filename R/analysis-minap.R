@@ -28,7 +28,7 @@ rm(dt)
 gc()
 
 # Load transport data for MSOAs
-msoa_transport <- readRDS("data/msoas_transport_data.Rds") # Load
+msoa_transport <- readRDS("data/msoas.Rds") # Load
 msoa_transport$msoa_code <- msoa_transport$geo_code
 msoa_transport$geo_code <- NULL
 
@@ -36,12 +36,12 @@ msoa_transport$geo_code <- NULL
 msoa_transport$pc_cycle <- (msoa_transport$Bicycle / msoa_transport$All) * 100 # cycle
 msoa_transport$pc_walk <- (msoa_transport$foot / msoa_transport$All) * 100 # walk
 msoa_transport$pc_car <- (msoa_transport$Car / msoa_transport$All) * 100 # car
-msoa_transport <- msoa_transport[,5:8] # drop variables not needed
+# msoa_transport <- msoa_transport[,5:8] # drop variables not needed
 
 # Join on cycling data
-msoa_p <- join(msoa_persons, msoa_transport, by = c("msoa_code"), type = "left", match = "all")
-msoa_m <- join(msoa_males, msoa_transport, by = c("msoa_code"), type = "left", match = "all")
-msoa_f <- join(msoa_females, msoa_transport, by = c("msoa_code"), type = "left", match = "all")
+msoa_p <- join(msoa_persons, msoa_transport@data, by = c("msoa_code"), type = "left", match = "all")
+msoa_m <- join(msoa_males, msoa_transport@data, by = c("msoa_code"), type = "left", match = "all")
+msoa_f <- join(msoa_females, msoa_transport@data, by = c("msoa_code"), type = "left", match = "all")
 rm(msoa_transport)
 rm(msoa_persons)
 rm(msoa_females)
@@ -221,3 +221,4 @@ cbind(exp(coef(model_nb)), exp(confint(model_nb))) # Convert to IRRs (take p fro
 
 summary(model_zi)
 cbind(exp(coef(model_zi)), exp(confint(model_zi))) # Convert to IRRs (take p from summary(model_nb))
+
