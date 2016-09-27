@@ -13,4 +13,4 @@ js
 images
 css
 testdat.csv
-data/minap-sample.Rds
+data/minap*.Rds

@@ -9,6 +9,8 @@ library(sp)
 
 # Load data
 sample_data <- readRDS("data/minap-sample.Rds")
+# source("R/export-minap-labs.R") # if you're working with full dataset on secure computer
+
 
 # Subset data to variables required
 names(sample_data)
@@ -18,7 +20,7 @@ rm(sample_data)
 rm(vars)
 
 # Keep only years interested in [need to make a decision on this - I have picked 2010-2013 for now]
-minap <- minap[minap$year>2009,]
+minap <- minap[minap$year > 2009,]
 # Remove observations with no location
 minap = minap[!is.na(minap$easting) & !is.na(minap$easting),]
 
@@ -58,6 +60,7 @@ rm(o)
 
 # Save MSOA cycling data seperately
 library(dplyr)
+library(dtplyr)
 hold <- minap[c("geo_code", "All", "Car", "Bicycle", "foot")] # Subset
 transport_msoa <- hold %>% distinct(geo_code) # Drop duplicate MSOAs
 saveRDS(transport_msoa, "data/msoas_transport_data.Rds")
@@ -121,7 +124,7 @@ msoa_exp_obs$adm_rate <- NULL
 
 # Save data
 saveRDS(msoa_exp_obs, "data/msoas_observed_expected_counts.Rds")
-rm(msoa_exp_obs)
+# rm(msoa_exp_obs)
 gc()
 
 ## What are left with is a file for MSOAs disaggregated by sex and age-bands with counts of

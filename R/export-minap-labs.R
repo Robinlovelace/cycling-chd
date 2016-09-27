@@ -1,32 +1,33 @@
 # Aim: load and 'scramble' some minap data
 
 library(readstata13)
-f <- "N:\\Faculty-of-Medicine-and-Health/LIGHT/Cardiovascular Epidemiology/Robin Lovelace/Sample_RL.dta"
-df <- read.dta13(f)
-names(df)
-labname <- get.label.name(df)
+f <- "N:/Faculty-of-Medicine-and-Health/LIGHT/Cardiovascular Epidemiology/Robin Lovelace/Full MINAP_RL.dta"
+sample_data <- read.dta13(f)
+names(sample_data)
+labname <- get.label.name(sample_data)
 labname <- labname[labname != ""]
 
-x <- data.frame(shortname =names(readstata13::get.varlabel(df)),
-                longname = readstata13::get.varlabel(df))
+x <- data.frame(shortname =names(readstata13::get.varlabel(sample_data)),
+                longname = readstata13::get.varlabel(sample_data))
 
 # write.csv(x, "labnames.csv")
 
 # library(jsonlite)
 # labout <- as.list(1:length(labname))
 # for(i in 1:length(labname)){
-#   labout[[i]] <- readstata13::get.label(df, label.name = labname[i])
-#   labout[[i]] <- paste0(labout[[i]], " = ", names(readstata13::get.label(df, label.name = labname[i])))
+#   labout[[i]] <- readstata13::get.label(sample_data, label.name = labname[i])
+#   labout[[i]] <- paste0(labout[[i]], " = ", names(readstata13::get.label(sample_data, label.name = labname[i])))
 # }
 
-names(labout)
-labout <- setNames(labout, labname)
+# labout <- setNames(labout, labname)
+# names(labout)
 
-x <- toJSON(labout, pretty = T)
-writeLines(x, "labnames.json")
+# x <- toJSON(labout, pretty = T)
+# writeLines(x, "labnames.json")
+
 
 set.seed(54)
-write.csv(df[sample(x = nrow(df), size = 100),], "testdat.csv")
+write.csv(sample_data[sample(x = nrow(sample_data), size = 100),], "testdat.csv")
 
 labs = read.csv("labnames.csv")
 labs
