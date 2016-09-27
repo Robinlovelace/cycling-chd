@@ -8,6 +8,7 @@ library(data.table)
 library(sp)
 
 # Load data
+sample_data = readr::read_csv("data/testdat.csv")
 sample_data <- readRDS("data/minap-sample.Rds")
 # source("R/export-minap-labs.R") # if you're working with full dataset on secure computer
 
@@ -84,7 +85,7 @@ rm(dt)
 ## Join on population data in same format here based on MSOA data
 
 # Load population data
-load("data/Population Data/Processed Data/pop_10_13.Rdata") # Loads object 'pop_10_13'
+load("data/pop_10_13.RData") # Loads object 'pop_10_13'
 
 # Join together population data to MINAP
 msoas_join <- join(msoas_age_sex_yr, pop_10_13, by = c("age_band", "sex", "year", "msoa_code"), type = "full", match = "all")
@@ -122,6 +123,7 @@ rm(std_pop)
 msoa_exp_obs$expt_adms <- msoa_exp_obs$adm_rate * msoa_exp_obs$population
 msoa_exp_obs$adm_rate <- NULL
 
+plot(msoa_exp_obs$population, msoa_exp_obs$expt_adms)
 # Save data
 saveRDS(msoa_exp_obs, "data/msoas_observed_expected_counts.Rds")
 # rm(msoa_exp_obs)
