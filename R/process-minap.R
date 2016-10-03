@@ -3,31 +3,24 @@
 #################################################
 
 # Libraries
-library(plyr)
-library(data.table)
+library(dplyr)
 library(sp)
+library(tmap)
 
 # Load data
-sample_data = readr::read_csv("data/testdat.csv")
-sample_data <- readRDS("data/minap-sample.Rds")
-# source("R/export-minap-labs.R") # if you're working with full dataset on secure computer
+# sample_data = readr::read_csv("data/testdat.csv")
+# sample_data <- readRDS("data/minap-sample.Rds")
+source("R/export-minap-labs.R") # if you're working with full dataset on secure computer
 
-
-# Subset data to variables required
-names(sample_data)
 vars <- c("year", "age", "sex", "easting", "northing") # Will need to add more later
 minap = sample_data[vars]
-rm(sample_data)
-rm(vars)
 
 # Keep only years interested in [need to make a decision on this - I have picked 2010-2013 for now]
-minap <- minap[minap$year > 2009,]
+# minap <- minap[minap$year > 2009,]
 # Remove observations with no location
 minap = minap[!is.na(minap$easting) & !is.na(minap$easting),]
 
 ## Attach MSOA codes here ##
-library(sp)
-summary(minap$easting)
 coords = cbind(minap$easting * 100, minap$northing * 100)
 minap_sp = SpatialPointsDataFrame(coords = coords, data = minap)
 rm(coords)
@@ -39,34 +32,44 @@ bbox(minap_sp)
 
 las = readRDS("data/las-geo-mode.Rds")
 names(las)
-
-# msoas = readRDS("../pct-bigdata/ukmsoas-scenarios.Rds")
-# names(msoas)
-# msoas@data = msoas@data[1:13]
-# saveRDS(msoas, "data/msoas.Rds")
-
 msoas = readRDS("data/msoas.Rds")
 names(msoas)
 plot(las, lwd = 3)
-plot(msoas, add = T) # just english msoas for now
-plot(minap_sp, col = "red", add = T)
-o = over(minap_sp, msoas)
+# plot(msoas, add = T) # just english msoas for now
+# plot(minap_sp, col = "red", add = T)
 
+# Add age-specific msoa data
+msoas_age_mode = geojsonio::geojson_read("data/msoas-age-mode.geojson", what = "sp")
+msoas_age_mode@data[8:ncol(msoas_age_mode)] = apply(msoas_age_mode@data[8:ncol(msoas_age_mode)], 2, as.numeric)
+names(msoas_age_mode)
+mjoined = inner_join(msoas@data, msoas_age_mode@data[c(1, 8:ncol(msoas_age_mode))], by = "geo_code")
+head(msoas@data)
+head(mjoined)
+msoas@data = mjoined
+# Add minap counts to msoas
+msoas$count = aggregate(minap_sp["year"], msoas, FUN = length)$year # convert to msoa level
+sum(msoas$count, na.rm = T) # the 700,000 cases counted by msoa code
+plot(msoas$All, msoas$count)
+cor(msoas$All, msoas$count, use = "complete.obs")
+cor(msoas$all_65_74, msoas$count, use = "complete.obs")
+cor(msoas$foot_65_74, msoas$count, use = "complete.obs")
+cor(msoas$bicycle_65_74, msoas$count, use = "complete.obs")
+m = tm_shape(msoas) +
+  tm_fill("count", style = "quantile")
+save_tmap(m, "figures/counts.png")
+
+# Add msoa level data to minap data
+o = over(minap_sp, msoas)
 names(o)
 minap = cbind(minap, o[c("geo_code", "All", "Car", "Bicycle", "foot")])
-rm(minap_sp)
-rm(msoas)
-rm(las)
-rm(o)
-
-# Save MSOA cycling data seperately
-library(dplyr)
-library(dtplyr)
-hold <- minap[c("geo_code", "All", "Car", "Bicycle", "foot")] # Subset
-transport_msoa <- hold %>% distinct(geo_code) # Drop duplicate MSOAs
-saveRDS(transport_msoa, "data/msoas_transport_data.Rds")
-rm(transport_msoa)
-rm(hold)
+# # Save MSOA cycling data seperately - not sure what this is doing...
+# library(dplyr)
+# library(dtplyr)
+# hold <- minap[c("geo_code", "All", "Car", "Bicycle", "foot")] # Subset
+# transport_msoa <- hold %>% distinct(geo_code) # Drop duplicate MSOAs
+# saveRDS(transport_msoa, "data/msoas_transport_data.Rds")
+# rm(transport_msoa)
+# rm(hold)
 
 # Create age bands
 minap$age_band <- cut(minap[, "age"], c(-1, 15.5, 24.5, 34.5, 44.5, 54.5, 64.5, 74.5, 121),
@@ -77,32 +80,25 @@ minap$msoa_code <- minap$geo_code # Rename variable
 dt <- data.table(minap) # Convert to data table
 msoas_age_sex_yr <- dt[, list(admissions=.N), by = c("sex", "age_band", "year", "msoa_code")] # Aggregate up
 msoas_age_sex_yr <- as.data.frame(msoas_age_sex_yr)
-rm(minap)
-rm(dt)
-
-
+# rm(minap)
+# rm(dt)
 
 ## Join on population data in same format here based on MSOA data
-
 # Load population data
 load("data/pop_10_13.RData") # Loads object 'pop_10_13'
+names(pop_10_13) # subset of minap data - why?
 
 # Join together population data to MINAP
 msoas_join <- join(msoas_age_sex_yr, pop_10_13, by = c("age_band", "sex", "year", "msoa_code"), type = "full", match = "all")
 rm(msoas_age_sex_yr)
 rm(pop_10_13)
 
-
-
 ### Create expected counts ###
-
-
 # Aggregate counts by age and sex to calcuate the 'standard population'
 hold <- data.table(msoas_join)
 std_pop <- hold[, list(admissions = sum(admissions, na.rm = TRUE), population = sum(population, na.rm = TRUE)),
                 by = c("sex", "age_band")]
 rm(hold)
-
 
 # Calculate age- and sex-specific rates
 std_pop <- as.data.frame(std_pop)
