@@ -35,9 +35,17 @@ merged_data = left_join(msoas@data, msoas_age_mode)
 msoas@data = merged_data
 
 # geojsonio::geojson_write(msoas, file = "data/msoas-age-mode.geojson")
-# msoas = geojsonio::geojson_read("data/msoas-age-mode.geojson", what = "sp")
+msoas = geojsonio::geojson_read("data/msoas-age-mode.geojson", what = "sp")
 
 head(msoas@data)
+library(tidyr)
+?gather
+mlong = gather(msoas@data[-c(2:7)], key = age_sex, value = Count, -geo_code)
+library(dplyr)
+mlong = filter(mlong, !grepl(pattern = "all", age_sex))
+mlong = mlong[grep(pattern = "[0-9]", x = mlong$age_sex),]
+head(mlong)
+
 plot(msoas)
 summary(msoas$bicycle_40_44)
 m = qtm(msoas, "bicycle_40_44", fill.style = "quantile", borders = "NA")
