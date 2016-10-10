@@ -3,13 +3,15 @@
 #################################################
 
 # Libraries
+library(plyr)
 library(dplyr)
 library(sp)
 library(tmap)
+library(data.table)
 
 # Load data
 # sample_data = readr::read_csv("data/testdat.csv")
-# sample_data <- readRDS("data/minap-sample.Rds")
+# sample_data <- readRDS("data/minap-sample.Rds") # For Mark
 source("R/export-minap-labs.R") # if you're working with full dataset on secure computer
 
 vars <- c("year", "age", "sex", "easting", "northing") # Will need to add more later
@@ -85,8 +87,7 @@ msoas_age_sex_yr <- as.data.frame(msoas_age_sex_yr)
 
 ## Join on population data in same format here based on MSOA data
 # Load population data
-load("data/pop_10_13.RData") # Loads object 'pop_10_13'
-names(pop_10_13) # subset of minap data - why?
+load("data/pop_10_13.RData") # Loads object 'pop_10_13' (population data)
 
 # Join together population data to MINAP
 msoas_join <- join(msoas_age_sex_yr, pop_10_13, by = c("age_band", "sex", "year", "msoa_code"), type = "full", match = "all")
@@ -123,8 +124,61 @@ plot(msoa_exp_obs$population, msoa_exp_obs$expt_adms)
 # Save data
 saveRDS(msoa_exp_obs, "data/msoas_observed_expected_counts.Rds")
 # rm(msoa_exp_obs)
-gc()
+
 
 ## What are left with is a file for MSOAs disaggregated by sex and age-bands with counts of
 ## admissions, population and the expected count of admissions. We can later aggregate by sex (or for total
 ## persons) the counts but better to keep disaggregated for now
+
+
+### Do the same for Local Authority Level (District/UA) ###
+
+lkup <- readr::read_csv("data/la_msoa_lkup.csv") # Load LA to MSOA lookup
+la_data <- join(msoas_join, lkup, by = "msoa_code", type = "right", match = "all") # Join together
+
+dt <- data.table(la_data) # Convert to data table
+la_age_sex_yr <- dt[, list(admissions=sum(admissions, na.rm = TRUE), population=sum(population, na.rm = TRUE)),
+                    by = c("sex", "age_band", "year", "la_code")] # Aggregate by LA, age and sex
+
+# Variables:
+# imd_15 <- IMD average score
+# dm_10_11 <- Prevalence of diabetes (2010-11)
+# pcsmoke_12 <- Percentage of adults who smoke (number is year - 2012 here)
+# excess_wt_12_14 <- Percentage of adults with excess body weight (overweight or obese) (2012-14)
+# pc_pa_12 <- Percentage of physicaly active adults
+
+# Create expected counts #
+
+# Aggregate counts by age and sex to calcuate the 'standard population'
+hold <- data.table(la_age_sex_yr)
+std_pop <- hold[, list(admissions = sum(admissions, na.rm = TRUE), population = sum(population, na.rm = TRUE)),
+                by = c("sex", "age_band")]
+rm(hold)
+
+# Calculate age- and sex-specific rates
+std_pop <- as.data.frame(std_pop)
+std_pop$adm_rate <- std_pop$admissions / std_pop$population
+
+std_pop <- std_pop[is.finite(std_pop$adm_rate),] # Get rid of missing data
+std_pop
+
+std_pop$population <- NULL # Delete unnceessary variables
+std_pop$admissions <- NULL
+
+# Join the age- and sex-specific rates onto the data
+la_exp_obs <- join(la_age_sex_yr, std_pop, by = c("sex", "age_band"), type = "left", match = "all")
+rm(la_age_sex_yr)
+rm(std_pop)
+
+# Calcuate expected rate
+la_exp_obs$expt_adms <- la_exp_obs$adm_rate * la_exp_obs$population
+la_exp_obs$adm_rate <- NULL
+
+# plot(la_exp_obs$population, la_exp_obs$expt_adms)
+
+# Save data
+saveRDS(la_exp_obs, "data/las_observed_expected_counts.Rds")
+# rm(msoa_exp_obs)
+
+rm(list=ls())
+gc()
