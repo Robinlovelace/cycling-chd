@@ -101,6 +101,11 @@ summary(pmodel_p)
 nbmodel_p <- inla(formula, family = "nbinomial", data = eng_p, offset = log(expt_adms), control.compute=list(dic=T)) # Wil take 5 mins or so to run
 summary(nbmodel_p)
 
+exp(nbmodel_p$summary.fixed) # Incidence Rate Ratios
+
+# exp.fixed.maginal = inla.tmarginal(function(x) exp(x), nbmodel_p$marginals.fixed$pc_walk) # If you want to plot the density of the marginals
+# plot(exp.fixed.maginal)
+
 # # Zero inflated model
 # zpmodel_p <- inla(formula, family = "zeroinflatedpoisson1", data = eng_p, E = expt_adms, control.compute=list(dic=T))
 # summary(zpmodel_p)
@@ -113,4 +118,6 @@ nbmodel_f <- inla(formula, family = "nbinomial", data = eng_f, offset = log(expt
 nbmodel_m <- inla(formula, family = "nbinomial", data = eng_m, offset = log(expt_adms), control.compute=list(dic=T)) # Wil take 5 mins or so to run
 summary(nbmodel_f)
 summary(nbmodel_m)
+exp(nbmodel_f$summary.fixed) # Incidence Rate Ratios
+exp(nbmodel_m$summary.fixed) # Incidence Rate Ratios
 
