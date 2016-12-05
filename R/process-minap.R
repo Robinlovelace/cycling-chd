@@ -75,7 +75,8 @@ minap = cbind(minap, o[c("geo_code", "All", "Car", "Bicycle", "foot")])
 
 # Create age bands
 minap$age_band <- cut(minap[, "age"], c(-1, 15.5, 24.5, 34.5, 44.5, 54.5, 64.5, 74.5, 121),
-                            labels=c("0-15","16-24","25-34","35-44","45-54","55-64","65-74","75+"))
+                           labels=c("0-15","16-24","25-34","35-44","45-54","55-64","65-74","75+"))
+
 
 # Aggregate counts to MSOAs
 minap$msoa_code <- minap$geo_code # Rename variable
@@ -91,15 +92,17 @@ load("data/pop_10_13.RData") # Loads object 'pop_10_13' (population data)
 
 # Join together population data to MINAP
 msoas_join <- join(msoas_age_sex_yr, pop_10_13, by = c("age_band", "sex", "year", "msoa_code"), type = "full", match = "all")
-rm(msoas_age_sex_yr)
-rm(pop_10_13)
+msoas_join <- msoas_join[!is.na(msoas_join$population),] # Drop missing population data (i.e. years not required - so gets rid of 2009 and before)
+#rm(msoas_age_sex_yr)
+#rm(pop_10_13)
 
 ### Create expected counts ###
 # Aggregate counts by age and sex to calcuate the 'standard population'
 hold <- data.table(msoas_join)
+hold <- hold[hold$year >= 2010] # Subset only years use
 std_pop <- hold[, list(admissions = sum(admissions, na.rm = TRUE), population = sum(population, na.rm = TRUE)),
                 by = c("sex", "age_band")]
-rm(hold)
+#rm(hold)
 
 # Calculate age- and sex-specific rates
 std_pop <- as.data.frame(std_pop)
@@ -113,14 +116,19 @@ std_pop$admissions <- NULL
 
 # Join the age- and sex-specific rates onto the data
 msoa_exp_obs <- join(msoas_join, std_pop, by = c("sex", "age_band"), type = "left", match = "all")
-rm(msoas_join)
-rm(std_pop)
+#rm(msoas_join)
+#rm(std_pop)
 
 # Calcuate expected rate
 msoa_exp_obs$expt_adms <- msoa_exp_obs$adm_rate * msoa_exp_obs$population
+msoa_exp_obs$expt_adms[is.na(msoa_exp_obs$expt_adms)] <- 0
 msoa_exp_obs$adm_rate <- NULL
 
-plot(msoa_exp_obs$population, msoa_exp_obs$expt_adms)
+# Check adds up
+sum(msoa_exp_obs$admissions, na.rm=T)
+sum(msoa_exp_obs$expt_adms, na.rm=T)
+
+
 # Save data
 saveRDS(msoa_exp_obs, "data/msoas_observed_expected_counts.Rds")
 # rm(msoa_exp_obs)
@@ -134,18 +142,11 @@ saveRDS(msoa_exp_obs, "data/msoas_observed_expected_counts.Rds")
 ### Do the same for Local Authority Level (District/UA) ###
 
 lkup <- readr::read_csv("data/la_msoa_lkup.csv") # Load LA to MSOA lookup
-la_data <- join(msoas_join, lkup, by = "msoa_code", type = "right", match = "all") # Join together
+la_data <- join(msoa_exp_obs, lkup, by = "msoa_code", type = "right", match = "all") # Join together
 
 dt <- data.table(la_data) # Convert to data table
 la_age_sex_yr <- dt[, list(admissions=sum(admissions, na.rm = TRUE), population=sum(population, na.rm = TRUE)),
                     by = c("sex", "age_band", "year", "la_code")] # Aggregate by LA, age and sex
-
-# Variables:
-# imd_15 <- IMD average score
-# dm_10_11 <- Prevalence of diabetes (2010-11)
-# pcsmoke_12 <- Percentage of adults who smoke (number is year - 2012 here)
-# excess_wt_12_14 <- Percentage of adults with excess body weight (overweight or obese) (2012-14)
-# pc_pa_12 <- Percentage of physicaly active adults
 
 # Create expected counts #
 
@@ -172,9 +173,11 @@ rm(std_pop)
 
 # Calcuate expected rate
 la_exp_obs$expt_adms <- la_exp_obs$adm_rate * la_exp_obs$population
+la_exp_obs$expt_adms[is.na(la_exp_obs$expt_adms)] <- 0
 la_exp_obs$adm_rate <- NULL
 
-# plot(la_exp_obs$population, la_exp_obs$expt_adms)
+sum(la_exp_obs$admissions, na.rm=T)
+sum(la_exp_obs$expt_adms, na.rm=T)
 
 # Save data
 saveRDS(la_exp_obs, "data/las_observed_expected_counts.Rds")
