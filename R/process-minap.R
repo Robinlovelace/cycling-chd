@@ -186,3 +186,4 @@ saveRDS(la_exp_obs, "data/las_observed_expected_counts.Rds")
 rm(list=ls())
 gc()
 
+# next for LA analysis - R/LA-analysis-minap.R

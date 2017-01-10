@@ -53,7 +53,17 @@ la_persons$dm_10_11[is.infinite(la_persons$dm_10_11)] <- NA
 formula <- admissions ~ 1 + pccycle_11 + pcwalk_11 + imd_15 + pcsmoke_12 + excess_wt_12_14 + pc_pa_12
 model_p <- inla(formula, family = "poisson", data = la_persons, offset = log(expt_adms), control.compute=list(dic=T))
 summary(model_p) # For IRRs take exponential of median and CIs - have to do manually as inla cannot :(
+
+# generate summary table
+ff_res = exp(model_p$summary.fixed)
+ff_res_cywalk = ff_res[2:3, c("mean", "0.025quant", "0.975quant")]
+dir.create("la_results")
+write.csv(ff_res, "la_results/ff_res.csv")
+write.csv(ff_res_cywalk, "la_results/ff_res_cywalk.csv")
+
+(ff_res - 1) * 100
 rm(la_persons)
+names(la_data)
 
 
 ### Analysing admissions by sex ###
@@ -123,31 +133,42 @@ la_females <- la_sex[la_sex$sex=="Female"]
 rm(la_sex)
 gc()
 
+age_results = data.frame(matrix(nrow = 10, ncol = 8))
+names(age_results) = c("Age band", "Explanatory variable", "IRR",	"Lower CI",	"Upper CI",	"IRR",	"Lower CI",	"Upper CI")
+age_results$`Age band` = rep(c("16-24", "25-34", "35-44", "45-54", "55-64"), each = 2)
+
+age_results$`Explanatory variable` = rep(c("% Cycle", "% Walk"), length.out = nrow(age_results))
+
 # Males #
 hold <- la_males[la_males$age_band == "16-24"]
 formula <- admissions ~ 1 + pcm_1624_cycle + pcm_1624_walk + imd_15 + pcsmoke_12 + excess_wt_12_14 + pc_pa_12
 model_m <- inla(formula, family = "poisson", data = hold, control.compute=list(dic=T))
 summary(model_m)
+age_results[1:2, 3:5] = exp(model_m$summary.fixed[2:3, c("mean", "0.025quant", "0.975quant")])
 
 hold <- la_males[la_males$age_band == "25-34"]
 formula <- admissions ~ 1 + pcm_2534_cycle + pcm_2534_walk + imd_15 + pcsmoke_12 + excess_wt_12_14 + pc_pa_12
 model_m <- inla(formula, family = "poisson", data = hold, control.compute=list(dic=T))
 summary(model_m)
+age_results[3:4, 3:5] = exp(model_m$summary.fixed[2:3, c("mean", "0.025quant", "0.975quant")])
 
 hold <- la_males[la_males$age_band == "35-44"]
 formula <- admissions ~ 1 + pcm_3544_cycle + pcm_3544_walk + imd_15 + pcsmoke_12 + excess_wt_12_14 + pc_pa_12
 model_m <- inla(formula, family = "poisson", data = hold, control.compute=list(dic=T))
 summary(model_m)
+age_results[5:6, 3:5] = exp(model_m$summary.fixed[2:3, c("mean", "0.025quant", "0.975quant")])
 
 hold <- la_males[la_males$age_band == "45-54"]
 formula <- admissions ~ 1 + pcm_4554_cycle + pcm_4554_walk + imd_15 + pcsmoke_12 + excess_wt_12_14 + pc_pa_12
 model_m <- inla(formula, family = "poisson", data = hold, control.compute=list(dic=T))
 summary(model_m)
+age_results[7:8, 3:5] = exp(model_m$summary.fixed[2:3, c("mean", "0.025quant", "0.975quant")])
 
 hold <- la_males[la_males$age_band == "55-64"]
 formula <- admissions ~ 1 + pcm_5564_cycle + pcm_5564_walk + imd_15 + pcsmoke_12 + excess_wt_12_14 + pc_pa_12
 model_m <- inla(formula, family = "poisson", data = hold, control.compute=list(dic=T))
 summary(model_m)
+age_results[9:10, 3:5] = exp(model_m$summary.fixed[2:3, c("mean", "0.025quant", "0.975quant")])
 
 rm(model_m)
 
@@ -156,26 +177,33 @@ hold <- la_females[la_females$age_band == "16-24"]
 formula <- admissions ~ 1 + pcf_1624_cycle + pcf_1624_walk + imd_15 + pcsmoke_12 + excess_wt_12_14 + pc_pa_12
 model_f <- inla(formula, family = "poisson", data = hold, control.compute=list(dic=T))
 summary(model_f)
+age_results[1:2, 6:8] = exp(model_f$summary.fixed[2:3, c("mean", "0.025quant", "0.975quant")])
 
 hold <- la_females[la_females$age_band == "25-34"]
 formula <- admissions ~ 1 + pcf_2534_cycle + pcf_2534_walk + imd_15 + pcsmoke_12 + excess_wt_12_14 + pc_pa_12
 model_f <- inla(formula, family = "poisson", data = hold, control.compute=list(dic=T))
 summary(model_f)
+age_results[3:4, 6:8] = exp(model_f$summary.fixed[2:3, c("mean", "0.025quant", "0.975quant")])
 
 hold <- la_females[la_females$age_band == "35-44"]
 formula <- admissions ~ 1 + pcf_3544_cycle + pcf_3544_walk + imd_15 + pcsmoke_12 + excess_wt_12_14 + pc_pa_12
 model_f <- inla(formula, family = "poisson", data = hold, control.compute=list(dic=T))
 summary(model_f)
+age_results[5:6, 6:8] = exp(model_f$summary.fixed[2:3, c("mean", "0.025quant", "0.975quant")])
 
 hold <- la_females[la_females$age_band == "45-54"]
 formula <- admissions ~ 1 + pcf_4554_cycle + pcf_4554_walk + imd_15 + pcsmoke_12 + excess_wt_12_14 + pc_pa_12
 model_f <- inla(formula, family = "poisson", data = hold, control.compute=list(dic=T))
 summary(model_f)
+age_results[7:8, 6:8] = exp(model_f$summary.fixed[2:3, c("mean", "0.025quant", "0.975quant")])
 
 hold <- la_females[la_females$age_band == "55-64"]
 formula <- admissions ~ 1 + pcf_5564_cycle + pcf_5564_walk + imd_15 + pcsmoke_12 + excess_wt_12_14 + pc_pa_12
 model_f <- inla(formula, family = "poisson", data = hold, control.compute=list(dic=T))
 summary(model_f)
+age_results[9:10, 6:8] = exp(model_f$summary.fixed[2:3, c("mean", "0.025quant", "0.975quant")])
+
+write.csv(age_results, "la_results/age_results.csv")
 
 rm(model_f)
 
