@@ -34,20 +34,21 @@ bbox(minap_sp)
 
 las = readRDS("data/las-geo-mode.Rds")
 names(las)
+# RL: add definitive code from raw data to generate mode split (by age for cycling and walking all)
 msoas = readRDS("data/msoas.Rds")
 names(msoas)
 plot(las, lwd = 3)
 # plot(msoas, add = T) # just english msoas for now
 # plot(minap_sp, col = "red", add = T)
 
-# Add age-specific msoa data
-msoas_age_mode = geojsonio::geojson_read("data/msoas-age-mode.geojson", what = "sp")
-msoas_age_mode@data[8:ncol(msoas_age_mode)] = apply(msoas_age_mode@data[8:ncol(msoas_age_mode)], 2, as.numeric)
-names(msoas_age_mode)
-mjoined = inner_join(msoas@data, msoas_age_mode@data[c(1, 8:ncol(msoas_age_mode))], by = "geo_code")
-head(msoas@data)
-head(mjoined)
-msoas@data = mjoined
+# # Add age-specific msoa data # commented out
+# msoas_age_mode = geojsonio::geojson_read("data/msoas-age-mode.geojson", what = "sp")
+# msoas_age_mode@data[8:ncol(msoas_age_mode)] = apply(msoas_age_mode@data[8:ncol(msoas_age_mode)], 2, as.numeric)
+# names(msoas_age_mode)
+# mjoined = inner_join(msoas@data, msoas_age_mode@data[c(1, 8:ncol(msoas_age_mode))], by = "geo_code")
+# head(msoas@data)
+# head(mjoined)
+# msoas@data = mjoined
 # Add minap counts to msoas
 msoas$count = aggregate(minap_sp["year"], msoas, FUN = length)$year # convert to msoa level
 sum(msoas$count, na.rm = T) # the 700,000 cases counted by msoa code
@@ -62,7 +63,6 @@ save_tmap(m, "figures/counts.png")
 
 # Add msoa level data to minap data
 o = over(minap_sp, msoas)
-names(o)
 minap = cbind(minap, o[c("geo_code", "All", "Car", "Bicycle", "foot")])
 # # Save MSOA cycling data seperately - not sure what this is doing...
 # library(dplyr)
@@ -185,3 +185,4 @@ saveRDS(la_exp_obs, "data/las_observed_expected_counts.Rds")
 
 rm(list=ls())
 gc()
+

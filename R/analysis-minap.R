@@ -12,7 +12,8 @@ library(AER) # Test for over-dispersion
 library(pscl) # Test for over-dispersion
 
 # Load data
-minap_msoas <- readRDS("data/msoas_observed_expected_counts.Rds")
+# minap_msoas <- readRDS("data/msoas_observed_expected_counts.Rds")
+source("R/process-minap.R")
 
 # Aggregate by MSOA
 dt <- data.table(minap_msoas)
