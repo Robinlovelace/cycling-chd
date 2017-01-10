@@ -208,3 +208,79 @@ write.csv(age_results, "la_results/age_results.csv")
 rm(model_f)
 
 
+### Lag effect analysis ###
+
+
+# Add lag effect data
+la_2001 <- readRDS("data/las_exposures_2001.Rds")
+
+age_results = data.frame(matrix(nrow = 16, ncol = 8))
+names(age_results) = c("Age band", "Explanatory variable", "IRR",  "Lower CI",	"Upper CI",	"IRR",	"Lower CI",	"Upper CI")
+age_results$`Age band` = rep(c("25-34", "35-44", "45-54", "55-64"), each = 4)
+
+age_results$`Explanatory variable` = rep(c("% Cycle lag", "% Walk lag", "% Cycle 11", "% Walk 11"), length.out = nrow(age_results))
+
+# Males #
+hold <- la_males[la_males$age_band == "25-34"]
+hold <- join(hold, la_2001, by = "la_code", type = "left", match = "all")
+formula <- admissions ~ 1 + pcm01_1624_cycle + pcm01_1624_walk + pcm_2534_cycle + pcm_2534_walk + imd_15 + pcsmoke_12 + excess_wt_12_14 + pc_pa_12
+model_m <- inla(formula, family = "poisson", data = hold, control.compute=list(dic=T))
+summary(model_m)
+age_results[1:4, 3:5] = exp(model_m$summary.fixed[2:5, c("mean", "0.025quant", "0.975quant")])
+
+hold <- la_males[la_males$age_band == "35-44"]
+hold <- join(hold, la_2001, by = "la_code", type = "left", match = "all")
+formula <- admissions ~ 1 + pcm_3544_cycle + pcm_3544_walk + imd_15 + pcsmoke_12 + excess_wt_12_14 + pc_pa_12
+model_m <- inla(formula, family = "poisson", data = hold, control.compute=list(dic=T))
+summary(model_m)
+age_results[5:8, 3:5] = exp(model_m$summary.fixed[2:5, c("mean", "0.025quant", "0.975quant")])
+
+hold <- la_males[la_males$age_band == "45-54"]
+hold <- join(hold, la_2001, by = "la_code", type = "left", match = "all")
+formula <- admissions ~ 1 + pcm_4554_cycle + pcm_4554_walk + imd_15 + pcsmoke_12 + excess_wt_12_14 + pc_pa_12
+model_m <- inla(formula, family = "poisson", data = hold, control.compute=list(dic=T))
+summary(model_m)
+age_results[9:12, 3:5] = exp(model_m$summary.fixed[2:5, c("mean", "0.025quant", "0.975quant")])
+
+hold <- la_males[la_males$age_band == "55-64"]
+hold <- join(hold, la_2001, by = "la_code", type = "left", match = "all")
+formula <- admissions ~ 1 + pcm_5564_cycle + pcm_5564_walk + imd_15 + pcsmoke_12 + excess_wt_12_14 + pc_pa_12
+model_m <- inla(formula, family = "poisson", data = hold, control.compute=list(dic=T))
+summary(model_m)
+age_results[13:16, 3:5] = exp(model_m$summary.fixed[2:5, c("mean", "0.025quant", "0.975quant")])
+
+rm(model_m)
+
+# Females #
+hold <- la_females[la_females$age_band == "25-34"]
+hold <- join(hold, la_2001, by = "la_code", type = "left", match = "all")
+formula <- admissions ~ 1 + pcf01_1624_cycle + pcf01_1624_walk + pcf_2534_cycle + pcf_2534_walk + imd_15 + pcsmoke_12 + excess_wt_12_14 + pc_pa_12
+model_f <- inla(formula, family = "poisson", data = hold, control.compute=list(dic=T))
+summary(model_f)
+age_results[1:4, 6:8] = exp(model_f$summary.fixed[2:5, c("mean", "0.025quant", "0.975quant")])
+
+hold <- la_females[la_females$age_band == "35-44"]
+hold <- join(hold, la_2001, by = "la_code", type = "left", match = "all")
+formula <- admissions ~ 1 + pcf01_2534_cycle + pcf01_2534_walk + pcf_3544_cycle + pcf_3544_walk + imd_15 + pcsmoke_12 + excess_wt_12_14 + pc_pa_12
+model_f <- inla(formula, family = "poisson", data = hold, control.compute=list(dic=T))
+summary(model_f)
+age_results[5:8, 6:8] = exp(model_f$summary.fixed[2:5, c("mean", "0.025quant", "0.975quant")])
+
+hold <- la_females[la_females$age_band == "45-54"]
+hold <- join(hold, la_2001, by = "la_code", type = "left", match = "all")
+formula <- admissions ~ 1 + pcf01_3544_cycle + pcf01_3544_walk + pcf_4554_cycle + pcf_4554_walk + imd_15 + pcsmoke_12 + excess_wt_12_14 + pc_pa_12
+model_f <- inla(formula, family = "poisson", data = hold, control.compute=list(dic=T))
+summary(model_f)
+age_results[9:12, 6:8] = exp(model_f$summary.fixed[2:5, c("mean", "0.025quant", "0.975quant")])
+
+hold <- la_females[la_females$age_band == "55-64"]
+hold <- join(hold, la_2001, by = "la_code", type = "left", match = "all")
+formula <- admissions ~ 1 + pcf01_4554_cycle + pcf01_4554_walk + pcf_5564_cycle + pcf_5564_walk + imd_15 + pcsmoke_12 + excess_wt_12_14 + pc_pa_12
+model_f <- inla(formula, family = "poisson", data = hold, control.compute=list(dic=T))
+summary(model_f)
+age_results[13:16, 6:8] = exp(model_f$summary.fixed[2:5, c("mean", "0.025quant", "0.975quant")])
+
+write.csv(age_results, "la_results/age_results_lag.csv")
+
+rm(model_f)
+
