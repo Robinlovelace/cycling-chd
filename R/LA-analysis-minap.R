@@ -9,6 +9,20 @@ library(data.table)
 library(INLA)
 
 # Load data
+
+# la total pop results
+la_commute_all <- readr::read_csv("data/11777054.csv", skip = 6)
+la_commute_all = la_commute_all[grepl(pattern = "E", la_commute_all$mnemonic),]
+sum(la_commute_all$`CS1190001 ALL PEOPLE : ALL PEOPLE`) # 22.4 million commuting
+load("data/pop_10_13.RData")
+sum(pop_10_13$population) # double counted
+pop_11_filtered = filter(pop_10_13, age_band != "0-15", year == 2011, !grepl(pattern = "W", msoa_code))
+sum(pop_11_filtered$population)
+lkup <- readr::read_csv("data/la_msoa_lkup.csv") # Load LA to MSOA lookup
+pop_11_la <- join(pop_11_filtered, lkup, by = "msoa_code", type = "right", match = "all") # Join together
+pop_11_la = pop_11_la %>% group_by(la_code) %>% summarise(pop = sum(population))
+mean(pop_11_la$pop)
+
 la_minap <- readRDS("data/las_observed_expected_counts.Rds") # Minap data
 la_transport <- readr::read_csv("data/la_transport.csv") # Exposures (totals)
 la_transp_sex_age <- readr::read_csv("data/la_commuting_data_age_sex_2011.csv") # Exposures (by age and sex)
