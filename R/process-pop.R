@@ -5,7 +5,8 @@
 
 # Load data
 fpath <- "data/Population Data/Cleaned Raw Data/"
-pop_m <- pop_f <- male_raw <- female_raw <- male_all <- female_all <- vector(mode = "list", 11)
+pop_i <- pop_m <- pop_f <- vector(mode = "list", 11)
+male_raw <- female_raw <- male_all <- female_all <- vector(mode = "list", 11)
 
 y = 2003 # initiate counter for testing
 
@@ -29,9 +30,17 @@ for(y in 2003:2013){
   male_yr <- read.csv(fname_m)
   female_yr <- read.csv(fname_f)
 
+  # Some of 2012 and 2013 codes are LAs as well (how data presented) so need removing
+  male_yr$geography <- substr(male_yr$msoa_code,1,3) # Take first 3 characters of MSOA code to decipher what type of geography
+  male_yr <- male_yr[male_yr$geography == "E02",] # Subset non-msoas out of data
+  male_yr$geography <- NULL # Delete variable
+
+  female_yr$geography <- substr(female_yr$msoa_code,1,3) # Take first 3 characters of MSOA code to decipher what type of geography
+  female_yr <- female_yr[female_yr$geography=="E02",] # Subset non-msoas out of data
+  female_yr$geography <- NULL # Delete variable
+
   male_all[[j]] <- data.frame(male_yr[1])
   female_all[[j]] <- data.frame(female_yr[1])
-  names(male_all)[[j]] <- yr_nm
 
   male_all[[j]]$mpop_0_9 <- apply(male_yr[,(3 + i):(i + 12)], 1, sum)
   male_all[[j]]$mpop_10_19 <- apply(male_yr[,(13 + i):(i + 22)], 1, sum)
@@ -66,6 +75,8 @@ for(y in 2003:2013){
                         #new.row.names = 1:60392,
                         direction = "long")
   pop_m[[j]]$id <- NULL
+  pop_m[[j]]$year <- y
+  pop_m[[j]]$sex <- "Male"
 
   pop_f[[j]] <- reshape(female_all[[j]],
                         varying = c("fpop_0_9", "fpop_10_19", "fpop_20_26", "fpop_27_36", "fpop_37_46",
@@ -76,21 +87,16 @@ for(y in 2003:2013){
                         #new.row.names = 1:60392,
                         direction = "long")
   pop_f[[j]]$id <- NULL
+  pop_f[[j]]$year <- y
+  pop_f[[j]]$sex <- "Female"
+
+  pop_i[[j]] <- rbind(pop_m[[j]], pop_f[[j]])
 
 }
 
-# Some of 2012 and 2013 codes are LAs as well (how data presented) so need removing
-pop_2012$geography <- substr(pop_2012$msoa_code,1,3) # Take first 3 characters of MSOA code to decipher what type of geography
-pop_2013$geography <- substr(pop_2013$msoa_code,1,3)
-
-pop_2012 <- pop_2012[pop_2012$geography=="E02"|pop_2012$geography=="W02",] # Subset non-msoas out of data
-pop_2013 <- pop_2013[pop_2013$geography=="E02"|pop_2013$geography=="W02",]
-
-pop_2012$geography <- NULL # Delete variable
-pop_2013$geography <- NULL
-
 # Join together
-pop_02_13 <- rbind(pop_2002, pop_2003, pop_2004, pop_2005, pop_2006, pop_2007, pop_2008, pop_2009, pop_2010, pop_2011, pop_2012, pop_2013)
-save(pop_02_13, file = "data/Population Data/Processed Data/pop_02_13.RData")
+pop_03_13 <- dplyr::bind_rows(pop_i)
+
+save(pop_03_13, file = "data/Population Data/Processed Data/pop_03_13.RData")
 rm(list=ls())
 gc()
