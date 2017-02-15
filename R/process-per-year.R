@@ -1,7 +1,7 @@
 # aim - generate expect counts per year (after process-temp)
 
-y = 2011
-i <- y - 2003 # for testing - comment out for running inside for loop or yrs
+# y = 2011
+# i <- y - 2003 # for testing - comment out for running inside for loop or yrs
 temp <- minap[minap$year == y,]
 
 
