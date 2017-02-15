@@ -72,10 +72,11 @@ minap = cbind(minap, o[c("geo_code", "All", "Car", "Bicycle", "foot")])
 # saveRDS(transport_msoa, "data/msoas_transport_data.Rds")
 # rm(transport_msoa)
 # rm(hold)
-
 # Create age bands
-minap$age_band <- cut(minap[, "age"], c(-1, 17.5, 24.5, 34.5, 44.5, 54.5, 64.5, 74.5, 121),
-                           labels=c("0-17","18-24","25-34","35-44","45-54","55-64","65-74","75+"))
+
+minap$age_band <- cut(minap[, "age"], c(-1, 9.99, 17.5, 24.5, 34.5, 44.5, 54.5, 64.5, 74.5, 86.99, 121),
+                      labels=c("0-9", "10-19","20-26","27-36","37-46","47-56","57-66","67-76","77-86", "87+")) # for 2011
+head(minap)
 
 
 # Aggregate counts to MSOAs
@@ -88,10 +89,11 @@ msoas_age_sex_yr <- as.data.frame(msoas_age_sex_yr)
 
 ## Join on population data in same format here based on MSOA data
 # Load population data
-load("data/pop_02_13.RData")
+load("data/pop_03_13.RData")
 
 # Join together population data to MINAP
-msoas_join <- join(msoas_age_sex_yr, pop_02_13, by = c("age_band", "sex", "year", "msoa_code"), type = "full", match = "all")
+msoas_join <- join(msoas_age_sex_yr, as.data.frame(pop_03_13), by = c("age_band", "sex", "year", "msoa_code"), type = "full", match = "all")
+# msoas_join <- left_join(msoas_age_sex_yr, pop_03_13)
 msoas_join <- msoas_join[!is.na(msoas_join$population),] # Drop missing population data (i.e. years not required - so gets rid of 2009 and before)
 #rm(msoas_age_sex_yr)
 #rm(pop_02_13)
