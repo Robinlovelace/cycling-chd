@@ -74,8 +74,8 @@ minap = cbind(minap, o[c("geo_code", "All", "Car", "Bicycle", "foot")])
 # rm(hold)
 
 # Create age bands
-minap$age_band <- cut(minap[, "age"], c(-1, 15.5, 24.5, 34.5, 44.5, 54.5, 64.5, 74.5, 121),
-                           labels=c("0-15","16-24","25-34","35-44","45-54","55-64","65-74","75+"))
+minap$age_band <- cut(minap[, "age"], c(-1, 17.5, 24.5, 34.5, 44.5, 54.5, 64.5, 74.5, 121),
+                           labels=c("0-17","18-24","25-34","35-44","45-54","55-64","65-74","75+"))
 
 
 # Aggregate counts to MSOAs
@@ -88,20 +88,19 @@ msoas_age_sex_yr <- as.data.frame(msoas_age_sex_yr)
 
 ## Join on population data in same format here based on MSOA data
 # Load population data
-load("data/pop_10_13.RData") # Loads object 'pop_10_13' (population data)
+load("data/pop_02_13.RData")
 
 # Join together population data to MINAP
-msoas_join <- join(msoas_age_sex_yr, pop_10_13, by = c("age_band", "sex", "year", "msoa_code"), type = "full", match = "all")
+msoas_join <- join(msoas_age_sex_yr, pop_02_13, by = c("age_band", "sex", "year", "msoa_code"), type = "full", match = "all")
 msoas_join <- msoas_join[!is.na(msoas_join$population),] # Drop missing population data (i.e. years not required - so gets rid of 2009 and before)
 #rm(msoas_age_sex_yr)
-#rm(pop_10_13)
+#rm(pop_02_13)
 
 ### Create expected counts ###
 # Aggregate counts by age and sex to calcuate the 'standard population'
 hold <- data.table(msoas_join)
-hold <- hold[hold$year >= 2010] # Subset only years use
 std_pop <- hold[, list(admissions = sum(admissions, na.rm = TRUE), population = sum(population, na.rm = TRUE)),
-                by = c("sex", "age_band")]
+                by = c("sex", "age_band", "year")]
 #rm(hold)
 
 # Calculate age- and sex-specific rates
@@ -115,7 +114,7 @@ std_pop$population <- NULL # Delete unnceessary variables
 std_pop$admissions <- NULL
 
 # Join the age- and sex-specific rates onto the data
-msoa_exp_obs <- join(msoas_join, std_pop, by = c("sex", "age_band"), type = "left", match = "all")
+msoa_exp_obs <- join(msoas_join, std_pop, by = c("sex", "age_band", "year"), type = "left", match = "all")
 #rm(msoas_join)
 #rm(std_pop)
 
@@ -134,7 +133,7 @@ saveRDS(msoa_exp_obs, "data/msoas_observed_expected_counts.Rds")
 # rm(msoa_exp_obs)
 
 
-## What are left with is a file for MSOAs disaggregated by sex and age-bands with counts of
+## What are left with is a file for MSOAs disaggregated by sex and age-bands (by year) with counts of
 ## admissions, population and the expected count of admissions. We can later aggregate by sex (or for total
 ## persons) the counts but better to keep disaggregated for now
 
@@ -153,7 +152,7 @@ la_age_sex_yr <- dt[, list(admissions=sum(admissions, na.rm = TRUE), population=
 # Aggregate counts by age and sex to calcuate the 'standard population'
 hold <- data.table(la_age_sex_yr)
 std_pop <- hold[, list(admissions = sum(admissions, na.rm = TRUE), population = sum(population, na.rm = TRUE)),
-                by = c("sex", "age_band")]
+                by = c("sex", "age_band", "year")]
 rm(hold)
 
 # Calculate age- and sex-specific rates
@@ -167,7 +166,7 @@ std_pop$population <- NULL # Delete unnceessary variables
 std_pop$admissions <- NULL
 
 # Join the age- and sex-specific rates onto the data
-la_exp_obs <- join(la_age_sex_yr, std_pop, by = c("sex", "age_band"), type = "left", match = "all")
+la_exp_obs <- join(la_age_sex_yr, std_pop, by = c("sex", "age_band", "year"), type = "left", match = "all")
 rm(la_age_sex_yr)
 rm(std_pop)
 
