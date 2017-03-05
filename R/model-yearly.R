@@ -46,8 +46,13 @@ for(y in 2003:2013){
   yearly_results_m[[j]] = exp(model_m1$summary.fixed)
   yearly_results_f[[j]] = exp(model_f1$summary.fixed)
 
-  res_df$cl[j] = yearly_results_f[[1]]$`0.025quant`
-  res_df$ul[j] = yearly_results_f[[1]]$`0.975quant`
+  res_f$med[j] = yearly_results_f[[1]]$`mean`
+  res_f$cl[j] = yearly_results_f[[1]]$`0.025quant`
+  res_f$ul[j] = yearly_results_f[[1]]$`0.975quant`
+
+  res_m$med[j] = yearly_results_m[[1]]$`mean`
+  res_m$cl[j] = yearly_results_m[[1]]$`0.025quant`
+  res_m$ul[j] = yearly_results_m[[1]]$`0.975quant`
 
 
 }
