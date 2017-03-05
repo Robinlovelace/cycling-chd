@@ -1,8 +1,10 @@
 # Aim: load and 'scramble' some minap data
 
-library(readstata13)
-f <- "N:/Faculty-of-Medicine-and-Health/LIGHT/Cardiovascular Epidemiology/Robin Lovelace/Full MINAP_RL.dta"
-sample_data <- read.dta13(f)
+# library(readstata13)
+# f <- "N:/Faculty-of-Medicine-and-Health/LIGHT/Cardiovascular Epidemiology/Robin Lovelace/Full MINAP_RL.dta"
+# sample_data <- read.dta13(f)
+# saveRDS(sample_data, "data/sample_data.Rds")
+sample_data <- readRDS("data/sample_data.Rd")
 names(sample_data)
 labname <- get.label.name(sample_data)
 labname <- labname[labname != ""]
