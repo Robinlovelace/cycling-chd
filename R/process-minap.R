@@ -54,9 +54,7 @@ msoas$count = aggregate(minap_sp["year"], msoas, FUN = length)$year # convert to
 sum(msoas$count, na.rm = T) # the 700,000 cases counted by msoa code
 plot(msoas$All, msoas$count)
 cor(msoas$All, msoas$count, use = "complete.obs")
-cor(msoas$all_65_74, msoas$count, use = "complete.obs")
-cor(msoas$foot_65_74, msoas$count, use = "complete.obs")
-cor(msoas$bicycle_65_74, msoas$count, use = "complete.obs")
+
 m = tm_shape(msoas) +
   tm_fill("count", style = "quantile")
 save_tmap(m, "figures/counts.png")

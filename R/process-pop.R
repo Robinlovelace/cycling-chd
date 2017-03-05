@@ -97,6 +97,6 @@ for(y in 2003:2013){
 # Join together
 pop_03_13 <- dplyr::bind_rows(pop_i)
 
-save(pop_03_13, file = "data/Population Data/Processed Data/pop_03_13.RData")
+save(pop_03_13, file = "data/pop_03_13.RData")
 rm(list=ls())
 gc()
