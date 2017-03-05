@@ -12,9 +12,9 @@ library(data.table)
 
 # Load data
 # sample_data = readr::read_csv("data/testdat.csv")
-# sample_data <- readRDS("data/minap-sample.Rds") # For Mark
-source("R/export-minap-labs.R") # if you're working with full dataset on secure computer
-
+# sample_data <- readRDS("data/minap-sample.Rds")
+# source("R/export-minap-labs.R") # if you're working with full dataset on secure computer
+minap <- readRDS("data/sample_data.Rds") # For Mark
 vars <- c("year", "age", "sex", "easting", "northing") # Will need to add more later
 minap = sample_data[vars]
 
