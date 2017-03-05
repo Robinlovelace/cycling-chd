@@ -9,6 +9,8 @@ library(INLA)
 load("data/pop_03_13.RData")
 yearly_results_m <- yearly_results_f <- vector(mode = "list", 11)
 res_df <- data.frame(y = 2003:2013, cl = NA, cu = NA)
+lkup <- readr::read_csv("data/la_msoa_lkup.csv") # Load LA to MSOA lookup
+
 
 la_2001 <- read.csv("data/2001_exposure_25_74.csv")
 
