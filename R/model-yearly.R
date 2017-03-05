@@ -125,8 +125,8 @@ for(y in 2011:2013){
 }
 
 # overall model, no yearly disag
-source("R/process-per-year.R") # output: msoa_exp_obs and la_exp_obs - from which we can run model
-la_exp_obs_yr <- la_exp_obs[grep(pattern = "11|12|13", la_exp_obs$year),] # Subset year
+# source("R/process-per-year.R") # output: msoa_exp_obs and la_exp_obs - from which we can run model
+la_exp_obs_yr <- la_exp_obs[grep(pattern = "0", la_exp_obs$year),] # Subset year
 la_exp_obs_11 <- la_exp_obs_yr[grepl(pattern = "0-9|67-76|77-86|87+", x = la_exp_obs_yr$age_band),] # Subset age bands for 2001 Analysis
 
 dt <- data.table(la_exp_obs_11) # Aggregate counts
@@ -156,3 +156,12 @@ model_f1 <- inla(formula, family = "nbinomial", data = la_females, offset = log(
 formula <- admissions ~ 1 + pcf_walk_25_74 + pcf_cycle_27_74 + imd_2015 + pcsmoke_12 + pc_pa_12 + excess_wt_12_14 + dm_10_11
 model_f2 <- inla(formula, family = "nbinomial", data = la_females, offset = log(expt_adms), control.compute=list(dic=T))
 
+exp(model_m1$summary.fixed)
+exp(model_f1$summary.fixed)
+exp(model_m2$summary.fixed)
+exp(model_f2$summary.fixed)
+
+saveRDS(model_m2, "la_results/la_all_m2_2011_2013.Rds")
+saveRDS(model_f2, "la_results/la_all_m2_2011_2013.Rds")
+saveRDS(model_m1, "la_results/la_all_m2_2011_2013.Rds")
+saveRDS(model_f1, "la_results/la_all_m2_2011_2013.Rds")
