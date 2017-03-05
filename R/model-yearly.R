@@ -91,7 +91,7 @@ for(y in 2011:2013){
                by = c("sex", "la_code")]
 
   temp <- join(la_sex, la_2011, by = "la_code", type = "left", match = "all") # Join on exposure (2011 mode transport)
-  la_sex <- join(la_sex, la_confs, by = "la_code", type = "left", match = "all") # Join on confounders
+  la_sex <- join(temp, la_confs, by = "la_code", type = "left", match = "all") # Join on confounders
 
 
   la_males <- la_sex[la_sex$sex=="Male"]
@@ -102,7 +102,7 @@ for(y in 2011:2013){
   model_m1 <- inla(formula, family = "nbinomial", data = la_males, offset = log(expt_adms), control.compute=list(dic=T))
 
   # Males (adjusted)
-  formula <- admissions ~ 1 + pcm_walk_25_74 + pcm_cycle_27_74 + imd_2015 + pc_smoke12 + pc_pa_12 + excess_wt_12_14 + dm_10_11
+  formula <- admissions ~ 1 + pcm_walk_25_74 + pcm_cycle_27_74 + imd_2015 + pcsmoke_12 + pc_pa_12 + excess_wt_12_14 + dm_10_11
   model_m2 <- inla(formula, family = "nbinomial", data = la_males, offset = log(expt_adms), control.compute=list(dic=T))
 
   # Females (unadjusted)
@@ -110,7 +110,7 @@ for(y in 2011:2013){
   model_f1 <- inla(formula, family = "nbinomial", data = la_females, offset = log(expt_adms), control.compute=list(dic=T))
 
   # Females (adjusted)
-  formula <- admissions ~ 1 + pcf_walk_25_74 + pcf_cycle_27_74 + imd_2015 + pc_smoke12 + pc_pa_12 + excess_wt_12_14 + dm_10_11
+  formula <- admissions ~ 1 + pcf_walk_25_74 + pcf_cycle_27_74 + imd_2015 + pcsmoke_12 + pc_pa_12 + excess_wt_12_14 + dm_10_11
   model_f2 <- inla(formula, family = "nbinomial", data = la_females, offset = log(expt_adms), control.compute=list(dic=T))
 
   # Store results
