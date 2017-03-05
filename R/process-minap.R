@@ -1,5 +1,6 @@
 #################################################
 ###### Myocardial Infarction Cycling Paper ######
+###### run after process-pop ####################
 #################################################
 
 # Libraries
@@ -37,7 +38,7 @@ names(las)
 # RL: add definitive code from raw data to generate mode split (by age for cycling and walking all)
 msoas = readRDS("data/msoas.Rds")
 names(msoas)
-plot(las, lwd = 3)
+# plot(las, lwd = 3)
 # plot(msoas, add = T) # just english msoas for now
 # plot(minap_sp, col = "red", add = T)
 
@@ -55,9 +56,9 @@ sum(msoas$count, na.rm = T) # the 700,000 cases counted by msoa code
 plot(msoas$All, msoas$count)
 cor(msoas$All, msoas$count, use = "complete.obs")
 
-m = tm_shape(msoas) +
-  tm_fill("count", style = "quantile")
-save_tmap(m, "figures/counts.png")
+# m = tm_shape(msoas) +
+#   tm_fill("count", style = "quantile")
+# save_tmap(m, "figures/counts.png")
 
 # Add msoa level data to minap data
 o = over(minap_sp, msoas)
@@ -129,8 +130,9 @@ sum(msoa_exp_obs$expt_adms, na.rm=T)
 
 
 # Save data
+msoa_exp_obs$admissions[is.na(msoa_exp_obs$admissions)] <- 0
 saveRDS(msoa_exp_obs, "data/msoas_observed_expected_counts.Rds")
-# rm(msoa_exp_obs)
+summary(msoa_exp_obs)
 
 
 ## What are left with is a file for MSOAs disaggregated by sex and age-bands (by year) with counts of
@@ -177,12 +179,12 @@ la_exp_obs$adm_rate <- NULL
 
 sum(la_exp_obs$admissions, na.rm=T)
 sum(la_exp_obs$expt_adms, na.rm=T)
+summary(la_exp_obs)
 
 # Save data
 saveRDS(la_exp_obs, "data/las_observed_expected_counts.Rds")
 # rm(msoa_exp_obs)
 
-rm(list=ls())
 gc()
 
 # next for LA analysis - R/LA-analysis-minap.R
