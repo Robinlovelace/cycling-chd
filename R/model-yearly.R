@@ -84,7 +84,7 @@ for(y in 2011:2013){
   source("R/process-per-year.R") # output: msoa_exp_obs and la_exp_obs - from which we can run model
 
   la_exp_obs_yr <- la_exp_obs[la_exp_obs$year == y,] # Subset year
-  la_exp_obs_11 <- la_exp_obs_yr[grepl(pattern = "0-9|67-76|77-86|87+", x = la_exp_obs_yr$age_band),] # Subset age bands for 2001 Analysis
+  la_exp_obs_11 <- la_exp_obs_yr[!grepl(pattern = "0-9|67-76|77-86|87+", x = la_exp_obs_yr$age_band),] # Subset age bands for 2001 Analysis
 
   dt <- data.table(la_exp_obs_11) # Aggregate counts
   la_sex <- dt[, list(admissions = sum(admissions, na.rm = TRUE), expt_adms = sum(expt_adms, na.rm = TRUE)),
@@ -127,7 +127,8 @@ for(y in 2011:2013){
 # overall model, no yearly disag
 # source("R/process-per-year.R") # output: msoa_exp_obs and la_exp_obs - from which we can run model
 la_exp_obs_yr <- la_exp_obs[grep(pattern = "0", la_exp_obs$year),] # Subset year
-la_exp_obs_11 <- la_exp_obs_yr[grepl(pattern = "0-9|67-76|77-86|87+", x = la_exp_obs_yr$age_band),] # Subset age bands for 2001 Analysis
+# la_exp_obs_yr <- la_exp_obs[grep(pattern = "11|12|13", la_exp_obs$year),] # Subset year
+la_exp_obs_11 <- la_exp_obs_yr[!grepl(pattern = "0-9|67-76|77-86|87+", x = la_exp_obs_yr$age_band),] # Subset age bands for 2001 Analysis
 
 dt <- data.table(la_exp_obs_11) # Aggregate counts
 la_sex <- dt[, list(admissions = sum(admissions, na.rm = TRUE), expt_adms = sum(expt_adms, na.rm = TRUE)),
@@ -162,6 +163,6 @@ exp(model_m2$summary.fixed)
 exp(model_f2$summary.fixed)
 
 saveRDS(model_m2, "la_results/la_all_m2_2011_2013.Rds")
-saveRDS(model_f2, "la_results/la_all_m2_2011_2013.Rds")
-saveRDS(model_m1, "la_results/la_all_m2_2011_2013.Rds")
-saveRDS(model_f1, "la_results/la_all_m2_2011_2013.Rds")
+saveRDS(model_f2, "la_results/la_all_f2_2011_2013.Rds")
+saveRDS(model_m1, "la_results/la_all_m1_2011_2013.Rds")
+saveRDS(model_f1, "la_results/la_all_f1_2011_2013.Rds")
