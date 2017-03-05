@@ -123,3 +123,36 @@ for(y in 2011:2013){
   print(y)
 
 }
+
+# overall model, no yearly disag
+source("R/process-per-year.R") # output: msoa_exp_obs and la_exp_obs - from which we can run model
+la_exp_obs_yr <- la_exp_obs[grep(pattern = "11|12|13", la_exp_obs$year),] # Subset year
+la_exp_obs_11 <- la_exp_obs_yr[grepl(pattern = "0-9|67-76|77-86|87+", x = la_exp_obs_yr$age_band),] # Subset age bands for 2001 Analysis
+
+dt <- data.table(la_exp_obs_11) # Aggregate counts
+la_sex <- dt[, list(admissions = sum(admissions, na.rm = TRUE), expt_adms = sum(expt_adms, na.rm = TRUE)),
+             by = c("sex", "la_code")]
+
+temp <- join(la_sex, la_2011, by = "la_code", type = "left", match = "all") # Join on exposure (2011 mode transport)
+la_sex <- join(temp, la_confs, by = "la_code", type = "left", match = "all") # Join on confounders
+
+
+la_males <- la_sex[la_sex$sex=="Male"]
+la_females <- la_sex[la_sex$sex=="Female"]
+
+# Males (unadjusted)
+formula <- admissions ~ 1 + pcm_walk_25_74 + pcm_cycle_27_74 # it is 25-74 not 27-74 spelling error!
+model_m1 <- inla(formula, family = "nbinomial", data = la_males, offset = log(expt_adms), control.compute=list(dic=T))
+
+# Males (adjusted)
+formula <- admissions ~ 1 + pcm_walk_25_74 + pcm_cycle_27_74 + imd_2015 + pcsmoke_12 + pc_pa_12 + excess_wt_12_14 + dm_10_11
+model_m2 <- inla(formula, family = "nbinomial", data = la_males, offset = log(expt_adms), control.compute=list(dic=T))
+
+# Females (unadjusted)
+formula <- admissions ~ 1 + pcf_walk_25_74 + pcf_cycle_27_74
+model_f1 <- inla(formula, family = "nbinomial", data = la_females, offset = log(expt_adms), control.compute=list(dic=T))
+
+# Females (adjusted)
+formula <- admissions ~ 1 + pcf_walk_25_74 + pcf_cycle_27_74 + imd_2015 + pcsmoke_12 + pc_pa_12 + excess_wt_12_14 + dm_10_11
+model_f2 <- inla(formula, family = "nbinomial", data = la_females, offset = log(expt_adms), control.compute=list(dic=T))
+
