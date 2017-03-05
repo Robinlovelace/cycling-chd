@@ -8,10 +8,9 @@ library(INLA)
 
 load("data/pop_03_13.RData")
 yearly_results_m <- yearly_results_f <- vector(mode = "list", 11)
-res_df <- data.frame(y = 2003:2013, cl = NA, cu = NA)
+res_f <- data.frame(y = 2003:2013, mean = NA, cl = NA, cu = NA) # Store results females
+res_m <- data.frame(y = 2003:2013, mean = NA, cl = NA, cu = NA) # Store results males
 lkup <- readr::read_csv("data/la_msoa_lkup.csv") # Load LA to MSOA lookup
-
-
 la_2001 <- read.csv("data/2001_exposure_25_74.csv")
 
 y = 2003
@@ -21,13 +20,11 @@ for(y in 2003:2013){
 
   source("R/process-per-year.R") # output: msoa_exp_obs and la_exp_obs - from which we can run model
 
+  la_exp_obs_yr <- la_exp_obs[la_exp_obs$year == y,] # Subset year
+  la_exp_obs_11 <- la_exp_obs_yr[grepl(pattern = "0-9|67-76|77-86|87+", x = la_exp_obs_yr$age_band),] # Subset age bands for 2011 Analysis
+  la_exp_obs_01 <- la_exp_obs_yr[grepl(pattern = "0-9|10-19|77-86|87+", x = la_exp_obs_yr$age_band),] # Subset age bands for 2001 Analysis
 
-
-  la_exp_obs <- la_exp_obs[la_exp_obs$year == y] # Subset year
-  la_exp_obs_11 <- la_exp_obs[grepl(pattern = "0-9|67-76|77-86|87+", x = la_exp_obs),] # Subset age bands for 2011 Analysis
-  la_exp_obs <- la_exp_obs[grepl(pattern = "0-9|10-19|77-86|87+", x = la_exp_obs),] # Subset age bands for 2001 Analysis
-
-  dt <- data.table(la_exp_obs) # Aggregate counts
+  dt <- data.table(la_exp_obs_01) # Aggregate counts
   la_sex <- dt[, list(admissions = sum(admissions, na.rm = TRUE), expt_adms = sum(expt_adms, na.rm = TRUE)),
                by = c("sex", "la_code")]
 
@@ -48,17 +45,25 @@ for(y in 2003:2013){
   yearly_results_m[[j]] = exp(model_m1$summary.fixed)
   yearly_results_f[[j]] = exp(model_f1$summary.fixed)
 
-  res_f$med[j] = yearly_results_f[[1]]$`mean`
-  res_f$cl[j] = yearly_results_f[[1]]$`0.025quant`
-  res_f$ul[j] = yearly_results_f[[1]]$`0.975quant`
+  # res_f$mean[j] = yearly_results_f[[1]]$`mean`
+  # res_f$cl[j] = yearly_results_f[[1]]$`0.025quant`
+  # res_f$ul[j] = yearly_results_f[[1]]$`0.975quant`
+  #
+  # res_m$mean[j] = yearly_results_m[[1]]$`mean`
+  # res_m$cl[j] = yearly_results_m[[1]]$`0.025quant`
+  # res_m$ul[j] = yearly_results_m[[1]]$`0.975quant`
 
-  res_m$med[j] = yearly_results_m[[1]]$`mean`
-  res_m$cl[j] = yearly_results_m[[1]]$`0.025quant`
-  res_m$ul[j] = yearly_results_m[[1]]$`0.975quant`
-
+  print(y)
 
 }
 
-res_df$cl[1:9] = sapply(yearly_results_f, function(x) x$`0.025quant`[3])
-plot(res_df$y, res_df$cl)
+saveRDS(yearly_results_f, "la_results/yearly_results_f.Rds")
+saveRDS(yearly_results_m, "la_results/yearly_results_m.Rds")
+
+res_df <- data.frame(year = 2003:2013, mean_m = NA, mean_f = NA)
+res_df$mean_m_cycle = sapply(yearly_results_m, function(x) x$`mean`[3])
+res_df$mean_f_cycle = sapply(yearly_results_f, function(x) x$`mean`[3])
+
+plot(res_df$year, res_df$mean_f_cycle, ylim = c(0, 1.1), type = "l") # make grey area with ggplot2
+lines(res_df$year, res_df$mean_m_cycle)
 
