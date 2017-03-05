@@ -91,7 +91,7 @@ for(y in 2011:2013){
                by = c("sex", "la_code")]
 
   temp <- join(la_sex, la_2011, by = "la_code", type = "left", match = "all") # Join on exposure (2011 mode transport)
-  la_sex <- join(la_sex, la_confs, by = "la_code", type = "left", match = "all") # Join on confounders
+  la_sex <- join(temp, la_confs, by = "la_code", type = "left", match = "all") # Join on confounders
 
 
   la_males <- la_sex[la_sex$sex=="Male"]
