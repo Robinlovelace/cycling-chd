@@ -1,6 +1,6 @@
 #################################################
 ###### Myocardial Infarction Cycling Paper ######
-###### run after process-pop ####################
+### run after process-pop & export-minap-labs ###
 #################################################
 
 # Libraries
@@ -16,7 +16,7 @@ library(data.table)
 # source("R/export-minap-labs.R") # if you're working with full dataset on secure computer
 minap <- readRDS("data/sample_data.Rds") # For Mark
 vars <- c("year", "age", "sex", "easting", "northing") # Will need to add more later
-minap = sample_data[vars]
+minap = minap[vars]
 
 # Keep only years interested in [need to make a decision on this - I have picked 2010-2013 for now]
 # minap <- minap[minap$year > 2009,]
