@@ -4,7 +4,7 @@
 # f <- "N:/Faculty-of-Medicine-and-Health/LIGHT/Cardiovascular Epidemiology/Robin Lovelace/Full MINAP_RL.dta"
 # sample_data <- read.dta13(f)
 # saveRDS(sample_data, "data/sample_data.Rds")
-sample_data <- readRDS("data/sample_data.Rd")
+sample_data <- readRDS("data/sample_data.Rds")
 names(sample_data)
 labname <- get.label.name(sample_data)
 labname <- labname[labname != ""]
