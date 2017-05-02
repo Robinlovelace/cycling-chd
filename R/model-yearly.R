@@ -59,6 +59,8 @@ for(y in 2003:2013){
 
 saveRDS(yearly_results_f, "la_results/yearly_results_f.Rds")
 saveRDS(yearly_results_m, "la_results/yearly_results_m.Rds")
+yearly_results_f = readRDS("la_results/yearly_results_f.Rds")
+yearly_results_m = readRDS("la_results/yearly_results_m.Rds")
 
 res_df <- data.frame(year = 2003:2013, mean_m = NA, mean_f = NA)
 res_df$mean_m_cycle = sapply(yearly_results_m, function(x) x$`mean`[3])
@@ -158,8 +160,10 @@ model_f2 <- inla(formula, family = "nbinomial", data = la_females, offset = log(
 
 exp(model_m1$summary.fixed)
 exp(model_f1$summary.fixed)
-exp(model_m2$summary.fixed)
-exp(model_f2$summary.fixed)
+res_la_f = exp(model_m2$summary.fixed)
+res_la_m = exp(model_f2$summary.fixed)
+
+res_la_f = (res_la_f - 1) * 100
 
 saveRDS(model_m2, "la_results/la_all_m2_2011_2013.Rds")
 saveRDS(model_f2, "la_results/la_all_f2_2011_2013.Rds")
