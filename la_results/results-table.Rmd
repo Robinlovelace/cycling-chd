@@ -1,0 +1,22 @@
+---
+title: "results"
+author: "Robin Lovelace"
+date: "2 May 2017"
+output: word_document
+---
+
+```{r}
+model_m2 = readRDS("../la_results/la_all_m2_2011_2013.Rds")
+model_f2 = readRDS("../la_results/la_all_f2_2011_2013.Rds")
+res_la_f = exp(model_m2$summary.fixed)
+res_la_m = exp(model_f2$summary.fixed)
+
+res_la_f = (res_la_f - 1) * 100
+
+```
+
+
+```{r}
+knitr::kable(res_la_f[1:5], digits = 2)
+```
+
