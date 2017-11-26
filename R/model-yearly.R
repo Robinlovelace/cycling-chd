@@ -7,11 +7,12 @@ library(data.table)
 library(INLA)
 
 load("data/pop_03_13.RData")
-yearly_results_m <- yearly_results_f <- vector(mode = "list", 11)
+yearly_results_m2 <- yearly_results_m1 <- yearly_results_f2 <- yearly_results_f1 <- vector(mode = "list", 11)
 res_f <- data.frame(y = 2003:2013, mean = NA, cl = NA, cu = NA) # Store results females
 res_m <- data.frame(y = 2003:2013, mean = NA, cl = NA, cu = NA) # Store results males
 lkup <- readr::read_csv("data/la_msoa_lkup.csv") # Load LA to MSOA lookup
-la_2001 <- read.csv("data/2001_exposure_25_74.csv")
+la_2001 <- read.csv("data/2001_exposure_25_74.csv") # Exposures
+la_confs <- readr::read_csv("data/phe_la_data.csv") # Covariates
 
 ## 2001 Exposure ##
 y = 2003
@@ -28,7 +29,8 @@ for(y in 2003:2013){
   la_sex <- dt[, list(admissions = sum(admissions, na.rm = TRUE), expt_adms = sum(expt_adms, na.rm = TRUE)),
                by = c("sex", "la_code")]
 
-  la_sex <- join(la_sex, la_2001, by = "la_code", type = "left", match = "all") # Join on exposure (2001 cycling)
+  temp <- join(la_sex, la_2001, by = "la_code", type = "left", match = "all") # Join on exposure (2001 mode transport)
+  la_sex <- join(temp, la_confs, by = "la_code", type = "left", match = "all") # Join on confounders
 
   la_males <- la_sex[la_sex$sex=="Male"]
   la_females <- la_sex[la_sex$sex=="Female"]
@@ -37,13 +39,23 @@ for(y in 2003:2013){
   formula <- admissions ~ 1 + m_walk_25_74 + m_cycle_25_74
   model_m1 <- inla(formula, family = "nbinomial", data = la_males, offset = log(expt_adms), control.compute=list(dic=T))
 
+  # Males (Adjusted)
+  formula <- admissions ~ 1 + m_walk_25_74 + m_cycle_25_74 + imd_2015 + pcsmoke_12 + pc_pa_12 + excess_wt_12_14 + dm_10_11
+  model_m2 <- inla(formula, family = "nbinomial", data = la_males, offset = log(expt_adms), control.compute=list(dic=T))
+
   # Females (unadjusted)
   formula <- admissions ~ 1 + f_walk_25_74 + f_cycle_25_74
   model_f1 <- inla(formula, family = "nbinomial", data = la_females, offset = log(expt_adms), control.compute=list(dic=T))
 
+  # Females (Adjusted)
+  formula <- admissions ~ 1 + f_walk_25_74 + f_cycle_25_74 + imd_2015 + pcsmoke_12 + pc_pa_12 + excess_wt_12_14 + dm_10_11
+  model_f2 <- inla(formula, family = "nbinomial", data = la_females, offset = log(expt_adms), control.compute=list(dic=T))
+
   # Store results
-  yearly_results_m[[j]] = exp(model_m1$summary.fixed)
-  yearly_results_f[[j]] = exp(model_f1$summary.fixed)
+  yearly_results_m1[[j]] = exp(model_m1$summary.fixed)
+  yearly_results_f1[[j]] = exp(model_f1$summary.fixed)
+  yearly_results_m2[[j]] = exp(model_m2$summary.fixed)
+  yearly_results_f2[[j]] = exp(model_f2$summary.fixed)
 
   # res_f$mean[j] = yearly_results_f[[1]]$`mean`
   # res_f$cl[j] = yearly_results_f[[1]]$`0.025quant`
@@ -57,8 +69,16 @@ for(y in 2003:2013){
 
 }
 
+
+saveRDS(yearly_results_f1, "la_results/yearly_results_f_unadj.Rds")
+saveRDS(yearly_results_m1, "la_results/yearly_results_m_unadj.Rds")
+saveRDS(yearly_results_f2, "la_results/yearly_results_f_adj.Rds")
+saveRDS(yearly_results_m2, "la_results/yearly_results_m_adj.Rds")
+
 saveRDS(yearly_results_f, "la_results/yearly_results_f.Rds")
 saveRDS(yearly_results_m, "la_results/yearly_results_m.Rds")
+yearly_results_f = readRDS("la_results/yearly_results_f.Rds")
+yearly_results_m = readRDS("la_results/yearly_results_m.Rds")
 
 res_df <- data.frame(year = 2003:2013, mean_m = NA, mean_f = NA)
 res_df$mean_m_cycle = sapply(yearly_results_m, function(x) x$`mean`[3])
@@ -124,6 +144,12 @@ for(y in 2011:2013){
 
 }
 
+# Save output
+saveRDS(yearly_results_madj, "la_results/la_adj_m_2011_2013.Rds")
+saveRDS(yearly_results_fadj, "la_results/la_adj_f_2011_2013.Rds")
+saveRDS(yearly_results_munadj, "la_results/la_unadj_m_2011_2013.Rds")
+saveRDS(yearly_results_funadj, "la_results/la_unadj_f_2011_2013.Rds")
+
 # overall model, no yearly disag
 # source("R/process-per-year.R") # output: msoa_exp_obs and la_exp_obs - from which we can run model
 la_exp_obs_yr <- la_exp_obs[grep(pattern = "0", la_exp_obs$year),] # Subset year
@@ -158,8 +184,10 @@ model_f2 <- inla(formula, family = "nbinomial", data = la_females, offset = log(
 
 exp(model_m1$summary.fixed)
 exp(model_f1$summary.fixed)
-exp(model_m2$summary.fixed)
-exp(model_f2$summary.fixed)
+res_la_f = exp(model_m2$summary.fixed)
+res_la_m = exp(model_f2$summary.fixed)
+
+res_la_f = (res_la_f - 1) * 100
 
 saveRDS(model_m2, "la_results/la_all_m2_2011_2013.Rds")
 saveRDS(model_f2, "la_results/la_all_f2_2011_2013.Rds")
