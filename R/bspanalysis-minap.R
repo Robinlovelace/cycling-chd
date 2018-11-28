@@ -121,3 +121,13 @@ summary(nbmodel_m)
 exp(nbmodel_f$summary.fixed) # Incidence Rate Ratios
 exp(nbmodel_m$summary.fixed) # Incidence Rate Ratios
 
+# Additional analyses #
+
+# Negative binomial model
+formula <- admissions ~ 1 + pc_active + imd15_score + f(n, model = "bym", graph = H) # Change so look at percentage of active travel only
+nbmodel2_f <- inla(formula, family = "nbinomial", data = eng_f, offset = log(expt_adms), control.compute=list(dic=T)) # Wil take 5 mins or so to run
+nbmodel2_m <- inla(formula, family = "nbinomial", data = eng_m, offset = log(expt_adms), control.compute=list(dic=T)) # Wil take 5 mins or so to run
+summary(nbmodel2_f)
+summary(nbmodel2_m)
+exp(nbmodel2_f$summary.fixed) # Incidence Rate Ratios
+exp(nbmodel2_m$summary.fixed) # Incidence Rate Ratios
