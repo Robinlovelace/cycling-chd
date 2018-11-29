@@ -6,7 +6,7 @@
 # Libraries
 library(data.table)
 library(plyr)
-# source("http://www.math.ntnu.no/inla/givemeINLA.R") # To install
+# install.packages("INLA", repos=c(getOption("repos"), INLA="https://inla.r-inla-download.org/R/stable"), dep=TRUE) # To install
 library(INLA)
 
 ### Sort out data ###
@@ -14,7 +14,7 @@ library(INLA)
 # Load data
 minap_msoas <- readRDS("data/msoas_observed_expected_counts.Rds")
 
-# Aggregate by MSOA
+# # Aggregate by MSOA
 dt <- data.table(minap_msoas)
 msoa_persons <- dt[, list(admissions = sum(admissions, na.rm = TRUE), expt_adms = sum(expt_adms, na.rm = TRUE)),
                    by = c("msoa_code")]
@@ -22,36 +22,39 @@ msoa_sex <- dt[, list(admissions = sum(admissions, na.rm = TRUE), expt_adms = su
                by = c("sex", "msoa_code")]
 msoa_males <- msoa_sex[msoa_sex$sex=="Male"]
 msoa_females <- msoa_sex[msoa_sex$sex=="Female"]
-rm(minap_msoas)
-rm(msoa_sex)
-rm(dt)
-gc()
+# rm(minap_msoas)
+# rm(msoa_sex)
+# rm(dt)
+# gc()
 
 
 ## Exposure variables ##
 
 # Active Transport #
 
-# Load transport data for MSOAs
-msoa_transport <- readRDS("data/msoas_transport_data.Rds") # Load
-msoa_transport$msoa_code <- msoa_transport$geo_code
-msoa_transport$geo_code <- NULL
-
-# Calculate exposure variables
+# # Load transport data for MSOAs
+msoa_transport <- readRDS("data/msoas.Rds") # Load
+names(msoa_transport)
+# msoa_transport$msoa_code <- msoa_transport$geo_code
+#
+# # Calculate exposure variables
 msoa_transport$pc_cycle <- (msoa_transport$Bicycle / msoa_transport$All) * 100 # cycle
 msoa_transport$pc_walk <- (msoa_transport$foot / msoa_transport$All) * 100 # walk
 msoa_transport$pc_active <- msoa_transport$pc_cycle + msoa_transport$pc_walk # Active transport
 msoa_transport$pc_car <- (msoa_transport$Car / msoa_transport$All) * 100 # car
-msoa_transport <- msoa_transport[,5:9] # drop variables not needed
+names(msoa_transport)
+msoa_transport <- msoa_transport[,c(1, 14:17)] # drop variables not needed
+names(msoa_transport)[1] = "msoa_code"
 
 # Join on cycling data
-msoa_p <- join(msoa_persons, msoa_transport, by = c("msoa_code"), type = "left", match = "all")
-msoa_m <- join(msoa_males, msoa_transport, by = c("msoa_code"), type = "left", match = "all")
-msoa_f <- join(msoa_females, msoa_transport, by = c("msoa_code"), type = "left", match = "all")
-rm(msoa_transport)
-rm(msoa_persons)
-rm(msoa_females)
-rm(msoa_males)
+msoa_p <- join(msoa_persons, msoa_transport@data, by = c("msoa_code"), type = "left", match = "all")
+
+msoa_m <- join(msoa_males, msoa_transport@data, by = c("msoa_code"), type = "left", match = "all")
+msoa_f <- join(msoa_females, msoa_transport@data, by = c("msoa_code"), type = "left", match = "all")
+# rm(msoa_transport)
+# rm(msoa_persons)
+# rm(msoa_females)
+# rm(msoa_males)
 
 
 # Deprivation #
@@ -63,15 +66,15 @@ msoa_imd <- read.csv("data/imd15.csv")
 msoa_p <- join(msoa_p, msoa_imd, by = c("msoa_code"), type = "left", match = "all")
 msoa_m <- join(msoa_m, msoa_imd, by = c("msoa_code"), type = "left", match = "all")
 msoa_f <- join(msoa_f, msoa_imd, by = c("msoa_code"), type = "left", match = "all")
-rm(msoa_imd)
+# rm(msoa_imd)
 
 # Drop missing data (i.e. only england MSOAs - n=6147)
 eng_p <- na.omit(msoa_p)
 eng_m <- na.omit(msoa_m)
 eng_f <- na.omit(msoa_f)
-rm(msoa_p)
-rm(msoa_f)
-rm(msoa_m)
+# rm(msoa_p)
+# rm(msoa_f)
+# rm(msoa_m)
 
 
 # Create shapefile for INLA to work with
