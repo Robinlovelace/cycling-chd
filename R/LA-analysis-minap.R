@@ -154,6 +154,21 @@ exp(model_f2$summary.fixed)
 rm(la_males, la_females, dt)
 gc()
 
+### New analyses for % total active transport ###
+
+la_males$pc_active <- la_males$pcwalk_ma_11 + la_males$pccycle_ma_11
+la_females$pc_active <- la_males$pcwalk_fm_11 + la_males$pccycle_fm_11
+
+# Females (adjusted)
+formula <- admissions ~ 1 + pc_active + imd_15 + pcsmoke_12 + excess_wt_12_14 + pc_pa_12 + dm_10_11
+model_f3 <- inla(formula, family = "nbinomial", data = la_females, offset = log(expt_adms), control.compute=list(dic=T))
+exp(model_f3$summary.fixed)
+
+# Males (adjusted)
+formula <- admissions ~ 1 + pc_active + imd_15 + pcsmoke_12 + excess_wt_12_14 + pc_pa_12 + dm_10_11
+model_m3 <- inla(formula, family = "nbinomial", data = la_males, offset = log(expt_adms), control.compute=list(dic=T))
+exp(model_m3$summary.fixed)
+
 
 
 ### Analysing admissions by age and sex ###
