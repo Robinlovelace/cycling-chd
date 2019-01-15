@@ -1,5 +1,4 @@
-# Aim: run model for each year
-# Run after process-minap (which results minap obj)
+# Summary: The script runs the analyses reported in Table 2 - we look at the yearly lagged effect of the exposure on outcomes.
 
 # Libraries
 library(plyr)
