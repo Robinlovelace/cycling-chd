@@ -31,6 +31,7 @@ la_confs <- readr::read_csv("data/phe_la_data.csv") # Confounders
 # Drop individuals aged 75+
 la_minap <- la_minap[la_minap$age_band != "75+"]
 la_minap <- la_minap[la_minap$age_band != "65-74"]
+table(la_minap$age_band)
 
 # Join into single file
 hold <- join(la_minap, la_transport, by = "la_code", type = "left", match = "all")
