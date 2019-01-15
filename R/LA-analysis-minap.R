@@ -2,6 +2,9 @@
 ######## Local Authority Analyses ########
 ##########################################
 
+## Summary of file ##
+# The script runs all analyses included in the paper. All data processing has been
+# undertaken elsewhere, this is the final file to reproduce the results and tables.
 
 # Libraries
 library(plyr)
@@ -28,10 +31,8 @@ la_transport <- readr::read_csv("data/la_transport.csv") # Exposures (totals)
 la_transp_sex_age <- readr::read_csv("data/la_commuting_data_age_sex_2011.csv") # Exposures (by age and sex)
 la_confs <- readr::read_csv("data/phe_la_data.csv") # Confounders
 
-# Drop individuals aged 75+
-la_minap <- la_minap[la_minap$age_band != "75+"]
-la_minap <- la_minap[la_minap$age_band != "65-74"]
-table(la_minap$age_band)
+# Keep individuals aged 25-64 (MG: have edited to address error here)
+la_minap <- la_minap[la_minap$age_band == "25-34" | la_minap$age_band == "35-44" | la_minap$age_band == "45-54" | la_minap$age_band == "55-64"]
 
 # Join into single file
 hold <- join(la_minap, la_transport, by = "la_code", type = "left", match = "all")
@@ -53,59 +54,7 @@ gc()
 # dm_10_11 <- diabetes prevalence (2010/11)
 
 
-### Analysing total admissions ###
-
-la_data$pcp_1664_active <- la_data$pcp_1664_walk + la_data$pcp_1664_cycle
-
-# Aggregate data
-dt <- data.table(la_data)
-la_persons <- dt[, list(admissions = sum(admissions, na.rm = TRUE), expt_adms = sum(expt_adms, na.rm = TRUE),
-                        pccycle_11 = max(pcp_1664_cycle, na.rm = TRUE), pcwalk_11 = max(pcp_1664_walk, na.rm = TRUE), pcactive_11 = max(pcp_1664_active, na.rm = TRUE),
-                        imd_15 = max(imd_2015, na.rm = TRUE), pcsmoke_12 = max(pcsmoke_12, na.rm = TRUE), pc_pa_12 = max(pc_pa_12, na.rm = TRUE),
-                        excess_wt_12_14 = max(excess_wt_12_14, na.rm = TRUE), dm_10_11 = max(dm_10_11, na.rm = TRUE)),
-                   by = c("la_code")] # NB I have used max for covariates since are all same values - just need to select one!
-la_persons$imd_15[is.infinite(la_persons$imd_15)] <- NA # Set 'infinite' values as missing
-la_persons$pcsmoke_12[is.infinite(la_persons$pcsmoke_12)] <- NA
-la_persons$pc_pa_12[is.infinite(la_persons$pc_pa_12)] <- NA
-la_persons$excess_wt_12_14[is.infinite(la_persons$excess_wt_12_14)] <- NA
-la_persons$dm_10_11[is.infinite(la_persons$dm_10_11)] <- NA
-la_persons$pcactive_11[is.infinite(la_persons$pcactive_11)] <- NA
-la_persons$pcwalk_11[is.infinite(la_persons$pcwalk_11)] <- NA
-la_persons$pccycle_11[is.infinite(la_persons$pccycle_11)] <- NA
-
-# Regression - active transport (unadjusted)
-formula <- admissions ~ 1 + pcactive_11
-model_p1 <- inla(formula, family = "nbinomial", data = la_persons, offset = log(expt_adms), control.compute=list(dic=T))
-exp(model_p1$summary.fixed)
-
-# Regression - active transport (adjusted)
-formula <- admissions ~ 1 + pcactive_11 + imd_15 + pcsmoke_12 + excess_wt_12_14 + pc_pa_12
-model_p2 <- inla(formula, family = "nbinomial", data = la_persons, offset = log(expt_adms), control.compute=list(dic=T))
-exp(model_p2$summary.fixed)
-
-# Regression (unadjusted)
-formula <- admissions ~ 1 + pccycle_11 + pcwalk_11
-model_p3 <- inla(formula, family = "nbinomial", data = la_persons, offset = log(expt_adms), control.compute=list(dic=T))
-exp(model_p3$summary.fixed)
-
-# Regression (adjusted)
-formula <- admissions ~ 1 + pccycle_11 + pcwalk_11 + imd_15 + pcsmoke_12 + excess_wt_12_14 + pc_pa_12
-model_p4 <- inla(formula, family = "nbinomial", data = la_persons, offset = log(expt_adms), control.compute=list(dic=T))
-exp(model_p4$summary.fixed)
-
-# generate summary table
-ff_res = exp(model_p$summary.fixed)
-ff_res_cywalk = ff_res[2:3, c("mean", "0.025quant", "0.975quant")]
-#dir.create("la_results")
-write.csv(ff_res, "la_results/ff_res.csv")
-write.csv(ff_res_cywalk, "la_results/ff_res_cywalk.csv")
-
-(ff_res - 1) * 100
-rm(la_persons)
-names(la_data)
-
-
-### Analysing admissions by sex ###
+### Analysing admissions by sex - results in Table 1 ###
 
 # Aggregate data
 dt <- data.table(la_data)
@@ -135,10 +84,10 @@ gc()
 # Males (unadjusted)
 formula <- admissions ~ 1 + pccycle_ma_11 + pcwalk_ma_11
 model_m1 <- inla(formula, family = "nbinomial", data = la_males, offset = log(expt_adms), control.compute=list(dic=T))
-exp(model_m1$summary.fixed)
+exp(model_m1$summary.fixed) # The exponents give the IRR values which are reported in Table 1
 
 # Males (adjusted)
-formula <- admissions ~ 1 + pccycle_ma_11 + pcwalk_ma_11 + imd_15 + pcsmoke_12 + excess_wt_12_14 + pc_pa_12
+formula <- admissions ~ 1 + pccycle_ma_11 + pcwalk_ma_11 + imd_15 + pcsmoke_12 + excess_wt_12_14 + pc_pa_12 + dm_10_11
 model_m2 <- inla(formula, family = "nbinomial", data = la_males, offset = log(expt_adms), control.compute=list(dic=T))
 exp(model_m2$summary.fixed)
 
@@ -148,14 +97,13 @@ model_f1 <- inla(formula, family = "nbinomial", data = la_females, offset = log(
 exp(model_f1$summary.fixed)
 
 # Females (adjusted)
-formula <- admissions ~ 1 + pccycle_fm_11 + pcwalk_fm_11 + imd_15 + pcsmoke_12 + excess_wt_12_14 + pc_pa_12
+formula <- admissions ~ 1 + pccycle_fm_11 + pcwalk_fm_11 + imd_15 + pcsmoke_12 + excess_wt_12_14 + pc_pa_12 + dm_10_11
 model_f2 <- inla(formula, family = "nbinomial", data = la_females, offset = log(expt_adms), control.compute=list(dic=T))
 exp(model_f2$summary.fixed)
 
-rm(la_males, la_females, dt)
-gc()
 
-### New analyses for % total active transport ###
+
+### Sensitivity analyses (modelling % total active transport) ###
 
 la_males$pc_active <- la_males$pcwalk_ma_11 + la_males$pccycle_ma_11
 la_females$pc_active <- la_males$pcwalk_fm_11 + la_males$pccycle_fm_11
@@ -171,9 +119,8 @@ model_m3 <- inla(formula, family = "nbinomial", data = la_males, offset = log(ex
 exp(model_m3$summary.fixed)
 
 
-
 ### Analysing admissions by age and sex ###
-
+# These are the analyses presented in Table 3 #
 
 # Aggregate data
 dt <- data.table(la_data)
@@ -201,7 +148,7 @@ la_females <- la_sex[la_sex$sex=="Female"]
 rm(la_sex)
 gc()
 
-age_results = data.frame(matrix(nrow = 10, ncol = 8))
+age_results = data.frame(matrix(nrow = 20, ncol = 8))
 names(age_results) = c("Age band", "Explanatory variable", "IRR",	"Lower CI",	"Upper CI",	"IRR",	"Lower CI",	"Upper CI")
 age_results$`Age band` = rep(c("16-24", "25-34", "35-44", "45-54", "55-64"), each = 2)
 
@@ -245,7 +192,7 @@ hold <- la_females[la_females$age_band == "16-24"]
 formula <- admissions ~ 1 + pcf_1624_cycle + pcf_1624_walk + imd_15 + pcsmoke_12 + excess_wt_12_14 + pc_pa_12
 model_f <- inla(formula, family = "nbinomial", data = hold, control.compute=list(dic=T))
 summary(model_f)
-age_results[1:2, 6:8] = exp(model_f$summary.fixed[2:3, c("mean", "0.025quant", "0.975quant")])
+age_results[1:1, 6:8] = exp(model_f$summary.fixed[2:3, c("mean", "0.025quant", "0.975quant")])
 
 hold <- la_females[la_females$age_band == "25-34"]
 formula <- admissions ~ 1 + pcf_2534_cycle + pcf_2534_walk + imd_15 + pcsmoke_12 + excess_wt_12_14 + pc_pa_12
@@ -272,12 +219,16 @@ summary(model_f)
 age_results[9:10, 6:8] = exp(model_f$summary.fixed[2:3, c("mean", "0.025quant", "0.975quant")])
 
 age_results
+# This is Table 3 - first set of results are males, next set are for females (last three columns)
 write.csv(age_results, "la_results/age_results.csv")
 
 rm(model_f)
 
 
-### Lag effect analysis ###
+### Additional analyses ###
+
+## Lag effect analysis - Does cycling prevalence in 2001 explain MI incidence in 2011 ##
+# (adjusted by age band so that 2001 age 25-34 predicts 35-44 incidence AMI) ##
 
 
 # Add lag effect data
@@ -351,7 +302,62 @@ summary(model_f)
 age_results[7:8, 6:8] = exp(model_f$summary.fixed[2:3, c("mean", "0.025quant", "0.975quant")])
 
 age_results
+# This is Table 3 - first set of results are males, next set are for females (last three columns)
 write.csv(age_results, "la_results/age_results_lag.csv")
 
 rm(model_f)
+
+
+## Analysing total admissions for persons rather than disagregated by sex (i.e. Table 1 alternative) ##
+
+la_data$pcp_1664_active <- la_data$pcp_1664_walk + la_data$pcp_1664_cycle
+
+# Aggregate data
+dt <- data.table(la_data)
+la_persons <- dt[, list(admissions = sum(admissions, na.rm = TRUE), expt_adms = sum(expt_adms, na.rm = TRUE),
+                        pccycle_11 = max(pcp_1664_cycle, na.rm = TRUE), pcwalk_11 = max(pcp_1664_walk, na.rm = TRUE), pcactive_11 = max(pcp_1664_active, na.rm = TRUE),
+                        imd_15 = max(imd_2015, na.rm = TRUE), pcsmoke_12 = max(pcsmoke_12, na.rm = TRUE), pc_pa_12 = max(pc_pa_12, na.rm = TRUE),
+                        excess_wt_12_14 = max(excess_wt_12_14, na.rm = TRUE), dm_10_11 = max(dm_10_11, na.rm = TRUE)),
+                 by = c("la_code")] # NB I have used max for covariates since are all same values - just need to select one!
+la_persons$imd_15[is.infinite(la_persons$imd_15)] <- NA # Set 'infinite' values as missing
+la_persons$pcsmoke_12[is.infinite(la_persons$pcsmoke_12)] <- NA
+la_persons$pc_pa_12[is.infinite(la_persons$pc_pa_12)] <- NA
+la_persons$excess_wt_12_14[is.infinite(la_persons$excess_wt_12_14)] <- NA
+la_persons$dm_10_11[is.infinite(la_persons$dm_10_11)] <- NA
+la_persons$pcactive_11[is.infinite(la_persons$pcactive_11)] <- NA
+la_persons$pcwalk_11[is.infinite(la_persons$pcwalk_11)] <- NA
+la_persons$pccycle_11[is.infinite(la_persons$pccycle_11)] <- NA
+
+# Regression - active transport (unadjusted)
+formula <- admissions ~ 1 + pcactive_11
+model_p1 <- inla(formula, family = "nbinomial", data = la_persons, offset = log(expt_adms), control.compute=list(dic=T))
+exp(model_p1$summary.fixed)
+
+# Regression - active transport (adjusted)
+formula <- admissions ~ 1 + pcactive_11 + imd_15 + pcsmoke_12 + excess_wt_12_14 + pc_pa_12
+model_p2 <- inla(formula, family = "nbinomial", data = la_persons, offset = log(expt_adms), control.compute=list(dic=T))
+exp(model_p2$summary.fixed)
+
+# Regression (unadjusted)
+formula <- admissions ~ 1 + pccycle_11 + pcwalk_11
+model_p3 <- inla(formula, family = "nbinomial", data = la_persons, offset = log(expt_adms), control.compute=list(dic=T))
+exp(model_p3$summary.fixed)
+
+# Regression (adjusted)
+formula <- admissions ~ 1 + pccycle_11 + pcwalk_11 + imd_15 + pcsmoke_12 + excess_wt_12_14 + pc_pa_12
+model_p4 <- inla(formula, family = "nbinomial", data = la_persons, offset = log(expt_adms), control.compute=list(dic=T))
+exp(model_p4$summary.fixed)
+
+# Generate results reported in Table 1
+ff_res = exp(model_p$summary.fixed)
+ff_res_cywalk = ff_res[2:3, c("mean", "0.025quant", "0.975quant")]
+#dir.create("la_results")
+write.csv(ff_res, "la_results/ff_res.csv")
+write.csv(ff_res_cywalk, "la_results/ff_res_cywalk.csv")
+
+(ff_res - 1) * 100
+rm(la_persons)
+names(la_data)
+
+
 
