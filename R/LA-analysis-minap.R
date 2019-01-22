@@ -32,7 +32,7 @@ la_transp_sex_age <- readr::read_csv("data/la_commuting_data_age_sex_2011.csv") 
 la_confs <- readr::read_csv("data/phe_la_data.csv") # Confounders
 
 # Keep individuals aged 25-64 (MG: have edited to address error here)
-la_minap <- la_minap[la_minap$age_band == "25-34" | la_minap$age_band == "35-44" | la_minap$age_band == "45-54" | la_minap$age_band == "55-64"]
+la_minap <- la_minap[la_minap$age_band == "25-34" | la_minap$age_band == "35-44" | la_minap$age_band == "45-54" | la_minap$age_band == "55-64" | la_minap$age_band == "65-74"]
 
 # Join into single file
 hold <- join(la_minap, la_transport, by = "la_code", type = "left", match = "all")
@@ -130,13 +130,13 @@ la_sex <- dt[, list(admissions = sum(admissions, na.rm = TRUE), expt_adms = sum(
                     pcf_3544_walk = max(pcf_3544_walk, na.rm = TRUE), pcf_3544_cycle = max(pcf_3544_cycle, na.rm = TRUE),
                     pcf_4554_walk = max(pcf_4554_walk, na.rm = TRUE), pcf_4554_cycle = max(pcf_4554_cycle, na.rm = TRUE),
                     pcf_5564_walk = max(pcf_5564_walk, na.rm = TRUE), pcf_5564_cycle = max(pcf_5564_cycle, na.rm = TRUE),
-                    pcf_65p_walk = max(pcf_65p_walk, na.rm = TRUE), pcf_65p_cycle = max(pcf_65p_cycle, na.rm = TRUE),
+                    pcf_6574_walk = max(pcf_65p_walk, na.rm = TRUE), pcf_65p_cycle = max(pcf_65p_cycle, na.rm = TRUE),
                     pcm_1624_walk = max(pcm_1624_walk, na.rm = TRUE), pcm_1624_cycle = max(pcm_1624_cycle, na.rm = TRUE),
                     pcm_2534_walk = max(pcm_2534_walk, na.rm = TRUE), pcm_2534_cycle = max(pcm_2534_cycle, na.rm = TRUE),
                     pcm_3544_walk = max(pcm_3544_walk, na.rm = TRUE), pcm_3544_cycle = max(pcm_3544_cycle, na.rm = TRUE),
                     pcm_4554_walk = max(pcm_4554_walk, na.rm = TRUE), pcm_4554_cycle = max(pcm_4554_cycle, na.rm = TRUE),
                     pcm_5564_walk = max(pcm_5564_walk, na.rm = TRUE), pcm_5564_cycle = max(pcm_5564_cycle, na.rm = TRUE),
-                    pcm_65p_walk = max(pcm_65p_walk, na.rm = TRUE), pcm_65p_cycle = max(pcm_65p_cycle, na.rm = TRUE),
+                    pcm_6574_walk = max(pcm_65p_walk, na.rm = TRUE), pcm_6574_cycle = max(pcm_65p_cycle, na.rm = TRUE),
                     imd_15 = max(imd_2015, na.rm = TRUE), pcsmoke_12 = max(pcsmoke_12, na.rm = TRUE), pc_pa_12 = max(pc_pa_12, na.rm = TRUE),
                     excess_wt_12_14 = max(excess_wt_12_14, na.rm = TRUE), dm_10_11 = max(dm_10_11, na.rm = TRUE)),
              by = c("la_code", "sex", "age_band")] # NB I have used max for covariates since are all same values - just need to select one!
@@ -148,9 +148,9 @@ la_females <- la_sex[la_sex$sex=="Female"]
 rm(la_sex)
 gc()
 
-age_results = data.frame(matrix(nrow = 20, ncol = 8))
+age_results = data.frame(matrix(nrow = 24, ncol = 8))
 names(age_results) = c("Age band", "Explanatory variable", "IRR",	"Lower CI",	"Upper CI",	"IRR",	"Lower CI",	"Upper CI")
-age_results$`Age band` = rep(c("16-24", "25-34", "35-44", "45-54", "55-64"), each = 2)
+age_results$`Age band` = rep(c("16-24", "25-34", "35-44", "45-54", "55-64", "65-74"), each = 2)
 
 age_results$`Explanatory variable` = rep(c("% Cycle", "% Walk"), length.out = nrow(age_results))
 
@@ -185,6 +185,12 @@ model_m <- inla(formula, family = "nbinomial", data = hold, control.compute=list
 summary(model_m)
 age_results[9:10, 3:5] = exp(model_m$summary.fixed[2:3, c("mean", "0.025quant", "0.975quant")])
 
+hold <- la_males[la_males$age_band == "64-74"]
+formula <- admissions ~ 1 + pcm_6574_cycle + pcm_6574_walk + imd_15 + pcsmoke_12 + excess_wt_12_14 + pc_pa_12
+model_m <- inla(formula, family = "nbinomial", data = hold, control.compute=list(dic=T))
+summary(model_m)
+age_results[11:12, 3:5] = exp(model_m$summary.fixed[2:3, c("mean", "0.025quant", "0.975quant")])
+                 
 rm(model_m)
 
 # Females #
@@ -218,6 +224,12 @@ model_f <- inla(formula, family = "nbinomial", data = hold, control.compute=list
 summary(model_f)
 age_results[9:10, 6:8] = exp(model_f$summary.fixed[2:3, c("mean", "0.025quant", "0.975quant")])
 
+hold <- la_females[la_females$age_band == "64-74"]
+formula <- admissions ~ 1 + pcf_6574_cycle + pcf_6574_walk + imd_15 + pcsmoke_12 + excess_wt_12_14 + pc_pa_12
+model_f <- inla(formula, family = "nbinomial", data = hold, control.compute=list(dic=T))
+summary(model_f)
+age_results[11:12, 6:8] = exp(model_f$summary.fixed[2:3, c("mean", "0.025quant", "0.975quant")])
+                 
 age_results
 # This is Table 3 - first set of results are males, next set are for females (last three columns)
 write.csv(age_results, "la_results/age_results.csv")
@@ -235,9 +247,9 @@ rm(model_f)
 la_2001 <- readRDS("data/las_exposures_2001.Rds")
 la_2001[3:32] <- la_2001[3:32] * 100 # Multiply by 100
 
-age_results = data.frame(matrix(nrow = 8, ncol = 8))
+age_results = data.frame(matrix(nrow = 10, ncol = 8))
 names(age_results) = c("Age band", "Explanatory variable", "IRR",  "Lower CI",	"Upper CI",	"IRR",	"Lower CI",	"Upper CI")
-age_results$`Age band` = rep(c("25-34", "35-44", "45-54", "55-64"), each = 2)
+age_results$`Age band` = rep(c("25-34", "35-44", "45-54", "55-64", "65-74"), each = 2)
 
 age_results$`Explanatory variable` = rep(c("% Cycle lag", "% Walk lag"), length.out = nrow(age_results))
 
@@ -270,6 +282,13 @@ model_m <- inla(formula, family = "nbinomial", data = hold, control.compute=list
 summary(model_m)
 age_results[7:8, 3:5] = exp(model_m$summary.fixed[2:3, c("mean", "0.025quant", "0.975quant")])
 
+hold <- la_males[la_males$age_band == "65-74"]
+hold <- join(hold, la_2001, by = "la_code", type = "left", match = "all")
+formula <- admissions ~ 1 + pcm01_5564_cycle + pcm01_5564_walk + imd_15 + pcsmoke_12 + excess_wt_12_14 + pc_pa_12
+model_m <- inla(formula, family = "nbinomial", data = hold, control.compute=list(dic=T))
+summary(model_m)
+age_results[9:10, 3:5] = exp(model_m$summary.fixed[2:3, c("mean", "0.025quant", "0.975quant")])
+                                
 rm(model_m)
 
 # Females #
@@ -299,7 +318,14 @@ hold <- join(hold, la_2001, by = "la_code", type = "left", match = "all")
 formula <- admissions ~ 1 + pcf01_4554_cycle + pcf01_4554_walk + imd_15 + pcsmoke_12 + excess_wt_12_14 + pc_pa_12
 model_f <- inla(formula, family = "nbinomial", data = hold, control.compute=list(dic=T))
 summary(model_f)
-age_results[7:8, 6:8] = exp(model_f$summary.fixed[2:3, c("mean", "0.025quant", "0.975quant")])
+age_results[7:8, 6:8] = exp(model_f$summary.fixed[2:3, c("mean", "0.025quant", "0.975quant")])                 
+                 
+hold <- la_females[la_females$age_band == "65-74"]
+hold <- join(hold, la_2001, by = "la_code", type = "left", match = "all")
+formula <- admissions ~ 1 + pcf01_5564_cycle + pcf01_5564_walk + imd_15 + pcsmoke_12 + excess_wt_12_14 + pc_pa_12
+model_f <- inla(formula, family = "nbinomial", data = hold, control.compute=list(dic=T))
+summary(model_f)
+age_results[9:10, 6:8] = exp(model_f$summary.fixed[2:3, c("mean", "0.025quant", "0.975quant")])
 
 age_results
 # This is Table 3 - first set of results are males, next set are for females (last three columns)
@@ -310,7 +336,7 @@ rm(model_f)
 
 ## Analysing total admissions for persons rather than disagregated by sex (i.e. Table 1 alternative) ##
 
-la_data$pcp_1664_active <- la_data$pcp_1664_walk + la_data$pcp_1664_cycle
+la_data$pcp_1664_active <- la_data$pcp_1664_walk + la_data$pcp_1664_cycle # variable names are wrong since they are total population (apologies for error)
 
 # Aggregate data
 dt <- data.table(la_data)
