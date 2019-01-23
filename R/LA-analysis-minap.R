@@ -185,7 +185,7 @@ model_m <- inla(formula, family = "nbinomial", data = hold, control.compute=list
 summary(model_m)
 age_results[9:10, 3:5] = exp(model_m$summary.fixed[2:3, c("mean", "0.025quant", "0.975quant")])
 
-hold <- la_males[la_males$age_band == "64-74"]
+hold <- la_males[la_males$age_band == "65-74"]
 formula <- admissions ~ 1 + pcm_6574_cycle + pcm_6574_walk + imd_15 + pcsmoke_12 + excess_wt_12_14 + pc_pa_12
 model_m <- inla(formula, family = "nbinomial", data = hold, control.compute=list(dic=T))
 summary(model_m)
@@ -224,7 +224,7 @@ model_f <- inla(formula, family = "nbinomial", data = hold, control.compute=list
 summary(model_f)
 age_results[9:10, 6:8] = exp(model_f$summary.fixed[2:3, c("mean", "0.025quant", "0.975quant")])
 
-hold <- la_females[la_females$age_band == "64-74"]
+hold <- la_females[la_females$age_band == "65-74"]
 formula <- admissions ~ 1 + pcf_6574_cycle + pcf_6574_walk + imd_15 + pcsmoke_12 + excess_wt_12_14 + pc_pa_12
 model_f <- inla(formula, family = "nbinomial", data = hold, control.compute=list(dic=T))
 summary(model_f)
